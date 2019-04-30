@@ -11,7 +11,7 @@ formID = ocrResults.Words{1};
 %% Load Template and Align
 addpath('C:\Users\prio\Documents\Adobe\FormFinal29.4')
 imRef = imread(['form_' formID '.jpg']);
-rec = surf_Align(imRef,im);
+rec = surfAlign(imRef,im);
 imshowpair(imRef,rec);
 
 %% Crop mask

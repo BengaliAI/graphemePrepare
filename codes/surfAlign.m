@@ -1,4 +1,4 @@
-function recovered = surf_Align(ref,moving)
+function recovered = surfAlign(ref,moving)
 
     ref = imbinarize(rgb2gray(ref));
 %     ref = medfilt2(ref,[5,5]);
