@@ -8,15 +8,6 @@ logPath = '../logs';
 groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
-%% Load Ground Truths
-gt = utfRead(groundTruth);
-gt = string(gt{1});
-gt = gt(81*(str2double(formID)-1)+1:81*str2double(formID));
-gt = fliplr(gt');
-gt = reshape(gt, 9,9);
-gt = reshape(gt',81,1);
-
-
 %% Get mask and bounding box
 mask = imbinarize(rgb2gray(imread([refPath '/' 'maskThick.jpg'])));
 bw = bwareaopen(mask,800);
@@ -59,8 +50,17 @@ for idx=1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlign(imRef,im);
+    [rec,qual] = surfAlign(imRef,im,true);
     % imshowpair(imRef,rec);
+    
+    %% Load Ground Truths
+    gt = utfRead(groundTruth);
+    gt = string(gt{1});
+    gt = gt(81*(str2double(formID)-1)+1:81*str2double(formID));
+    gt = fliplr(gt');
+    gt = reshape(gt, 9,9);
+    gt = reshape(gt',81,1);
+    
     
     %% Detect Blobs and Extract
     disp(['Extracting From ' files(idx).name])
