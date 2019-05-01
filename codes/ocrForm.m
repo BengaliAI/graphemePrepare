@@ -27,8 +27,9 @@ CC = bwconncomp(BWComplement);
 S = regionprops(CC,'Extent');
 L = labelmatrix(CC);
 BWComplement = ismember(L, find([S.Extent] >= .1));
-% BWComplement = bwareaopen(BWComplement,20000);
+BWComplement = bwareaopen(BWComplement,20000);
 % BWComplement = imerode(BWComplement, strel('square',erode));
+BWComplement = imdilate(BWComplement, strel('disk',erode));
 BWComplement = imresize(BWComplement,.15);
 if imdisp
     imshow(BWComplement)
