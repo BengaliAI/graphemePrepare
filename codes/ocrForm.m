@@ -1,4 +1,4 @@
-function results = ocrForm(img,roi,erode,imdisp)
+function [results,S] = ocrForm(img,roi,erode,imdisp)
 img = imcrop(img,roi);
 % Make the image a bit bigger to help OCR
 img = imresize(img, 5);
@@ -23,12 +23,18 @@ BWComplement(CC.PixelIdxList{idx}) = 0;
 % roi = vertcat(s(:).BoundingBox);
 % Apply OCR
 % Thin the letters a bit, to help OCR deal with the blocky letters
-BW1 = imerode(BWComplement, strel('square',erode));
-BW1 = bwareaopen(BW1,20000);
+CC = bwconncomp(BWComplement);
+S = regionprops(CC,'Extent');
+L = labelmatrix(CC);
+BWComplement = ismember(L, find([S.Extent] >= .1));
+% BWComplement = bwareaopen(BWComplement,20000);
+% BWComplement = imerode(BWComplement, strel('square',erode));
+BWComplement = imresize(BWComplement,.15);
 if imdisp
-    imshow(BW1)
+    imshow(BWComplement)
 end
+
 % Set text layout to 'Word' because the layout is nothing like a document.
 % Set character set to be A to Z, to limit mistakes.
-results = ocr(BW1, 'TextLayout', 'Word','CharacterSet','0123456789');
+results = ocr(BWComplement, 'TextLayout', 'Word','CharacterSet','0123456789');
 end

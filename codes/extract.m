@@ -9,7 +9,7 @@ groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
 files = dir(sourcePath);
-for idx=3:3%1:length(files)
+for idx=44:50%length(files)
     
     % JPG check
     split = (strsplit(files(idx).name,'.'));
@@ -28,6 +28,7 @@ for idx=3:3%1:length(files)
     erode = 15; % digit thinning
     ocrResults = ocrForm(im,roi,erode,true);
     formID = ocrResults.Words{1};
+    formID = strip(formID)
     
     %% if OCR error
     if ~ismember(str2double(formID),formIDs)
@@ -41,7 +42,7 @@ for idx=3:3%1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    rec = surfAlign(imRef,im);
+    [rec,qual] = surfAlign(imRef,im);
     % imshowpair(imRef,rec);
     
     %% Crop mask
@@ -59,7 +60,7 @@ for idx=3:3%1:length(files)
     
     
     %% Detect Blobs and Extract
-    disp(['Extracting From' files(idx).name])
+    disp(['Extracting From ' files(idx).name])
     % bw = medfilt2(rgb2gray(rec),[5,5]);
     bw = bwareaopen(mask(:,:,1),800);
     s = regionprops(bw,'BoundingBox');
@@ -68,7 +69,7 @@ for idx=3:3%1:length(files)
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
         filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
-%         imwrite(grapheme,filename);
+        imwrite(grapheme,filename);
     end
 end
 

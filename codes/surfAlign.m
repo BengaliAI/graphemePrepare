@@ -1,4 +1,4 @@
-function recovered = surfAlign(ref,moving)
+function [recovered,metric] = surfAlign(ref,moving)
 
     ref = imbinarize(rgb2gray(ref));
 %     ref = medfilt2(ref,[5,5]);
@@ -9,7 +9,7 @@ function recovered = surfAlign(ref,moving)
     ptsDistorted = detectSURFFeatures(BW);
     [featuresOriginal,  validPtsOriginal]  = extractFeatures(ref,  ptsOriginal);
     [featuresDistorted, validPtsDistorted] = extractFeatures(BW, ptsDistorted);
-    indexPairs = matchFeatures(featuresOriginal, featuresDistorted);
+    [indexPairs,metric] = matchFeatures(featuresOriginal, featuresDistorted);
     matchedOriginal  = validPtsOriginal(indexPairs(:,1));
     matchedDistorted = validPtsDistorted(indexPairs(:,2));
     tform = estimateGeometricTransform(...
@@ -17,5 +17,6 @@ function recovered = surfAlign(ref,moving)
 
     outputView = imref2d(size(ref));
     recovered  = imwarp(moving,tform,'OutputView',outputView);
+%     metric = mean(1-metric./4);
 
 end

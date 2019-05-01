@@ -2,3 +2,4 @@ data/scanned/*
 !data/scanned/placeholder.txt
 codes/*.asv
 data/extracted/**/*.png
+data/**/.jpg
