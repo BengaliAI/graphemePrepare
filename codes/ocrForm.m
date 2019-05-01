@@ -15,7 +15,8 @@ BWComplement(CC.PixelIdxList{idx}) = 0;
 
 % Next, because the text does not have a layout typical to a document, you
 % need to provide ROIs around the text for OCR. Use regionprops for this.
-BW = imdilate(BWComplement, strel('disk',3)); % grow the text a bit to get a bigger ROI around them.
+% BW = imdilate(BWComplement, strel('disk',3)); % grow the text a bit to get a bigger ROI around them.
+
 % CC = bwconncomp(BW);
 % Use regionprops to get the bounding boxes around the text
 % s = regionprops(CC,'BoundingBox');

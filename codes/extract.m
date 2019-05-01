@@ -9,7 +9,7 @@ groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
 files = dir(sourcePath);
-for idx=1:length(files)
+for idx=3:3%1:length(files)
     
     % JPG check
     split = (strsplit(files(idx).name,'.'));
@@ -26,7 +26,7 @@ for idx=1:length(files)
     %% OCR detect formID
     roi = [2100 1 450 500];
     erode = 15; % digit thinning
-    ocrResults = ocrForm(im,roi,erode,false);
+    ocrResults = ocrForm(im,roi,erode,true);
     formID = ocrResults.Words{1};
     
     %% if OCR error
@@ -68,7 +68,7 @@ for idx=1:length(files)
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
         filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
-        imwrite(grapheme,filename);
+%         imwrite(grapheme,filename);
     end
 end
 
