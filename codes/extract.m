@@ -1,6 +1,12 @@
 clear
-path = '../data/scanned/BUET/EEE18C';
-files = dir(path);
+sourcePath = '../data/scanned/BUET/EEE18C';
+targetPath = '../data/extracted';
+errorPath = '../data/error';
+refPath = '../collections/Letter';
+logPath = '../logs';
+formIDs = 1:16;
+
+files = dir(sourcePath);
 
 for idx=1:length(files)
     
@@ -9,26 +15,33 @@ for idx=1:length(files)
     if ~strcmp(char(split(end)),'jpg')
         continue;
     end
-    
     % empty check
-    im = imread([path '/' files(idx).name]);
+    im = imread([sourcePath '/' files(idx).name]);
     if sum(sum(sum(~imbinarize(im))))<400000
+        imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end
     
-    % OCR to detect Form ID
-    
+    %% OCR detect formID
     roi = [2100 1 450 500];
     erode = 15; % digit thinning
-    ocrResults = ocrForm(im,roi,erode,true);
+    ocrResults = ocrForm(im,roi,erode,false);
     formID = ocrResults.Words{1};
-    disp(formID)
+    
+    %% if OCR error
+    if ~ismember(str2double(formID),formIDs)
+        imwrite(im,[errorPath '/' files(idx).name])
+        continue;
+    end
+    if isnan(str2double(formID))
+        imwrite(im,[errorPath '/' files(idx).name])
+        continue;
+    end
 end
 %% Load Template and Align
-addpath('C:\Users\prio\Documents\Adobe\FormFinal29.4')
-imRef = imread(['form_' formID '.jpg']);
+imRef = imread([refPath '/' 'form_' formID '.jpg']);
 rec = surfAlign(imRef,im);
-imshowpair(imRef,rec);
+% imshowpair(imRef,rec);
 
 %% Crop mask
 mask = imbinarize(rgb2gray(imread('maskThick.jpg')));

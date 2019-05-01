@@ -5,7 +5,6 @@ img = imresize(img, 5);
 % binarize image
 lvl = graythresh(img);
 BWOrig = im2bw(img, lvl);
-% BWOrig = imbinarize(img);
 % First remove unwanted clutter
 BWComplement = ~BWOrig;
 
