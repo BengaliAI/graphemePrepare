@@ -1,13 +1,29 @@
 clear
-addpath('C:\Users\prio\Documents\Adobe\IUBform')
-im = imread('scanned.jpg');
-% im = imread('M:\GraphemeDataset\EEE 18 C\EEE 18 C\scan0047.jpg');
-%% OCR to detect Form ID
-roi = [2100 1 450 500];
-erode = 10; % digit thinning
-ocrResults = ocrForm(im,roi,erode);
-formID = ocrResults.Words{1};
+path = '../data/scanned/BUET/EEE18C';
+files = dir(path);
 
+for idx=1:length(files)
+    
+    % JPG check
+    split = (strsplit(files(idx).name,'.'));
+    if ~strcmp(char(split(end)),'jpg')
+        continue;
+    end
+    
+    % empty check
+    im = imread([path '/' files(idx).name]);
+    if sum(sum(sum(~imbinarize(im))))<400000
+        continue;
+    end
+    
+    % OCR to detect Form ID
+    
+    roi = [2100 1 450 500];
+    erode = 15; % digit thinning
+    ocrResults = ocrForm(im,roi,erode,true);
+    formID = ocrResults.Words{1};
+    disp(formID)
+end
 %% Load Template and Align
 addpath('C:\Users\prio\Documents\Adobe\FormFinal29.4')
 imRef = imread(['form_' formID '.jpg']);
