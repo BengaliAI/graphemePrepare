@@ -33,8 +33,8 @@ for idx=1:length(files)
     
     %% OCR detect formID
     roi = [2100 1 450 500];
-    erode = 5; % digit thinning
-    ocrResults = ocrForm(im,roi,erode,true);
+    dilate = 5; 
+    ocrResults = ocrForm(im,roi,dilate,true);
     formID = ocrResults.Words{1};
     formID = strip(formID)
     
@@ -42,7 +42,7 @@ for idx=1:length(files)
     if isnan(str2double(formID))
         %         imwrite(im,[errorPath '/' files(idx).name])
         %         continue;
-        formID = '8';
+        formID = '8'; % happens only when 8
     elseif ~ismember(str2double(formID),formIDs)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
