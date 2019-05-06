@@ -34,7 +34,7 @@ for idx=1:length(files)
     %% OCR detect formID
     roi = [2100 1 450 500];
     dilate = 5; 
-    ocrResults = ocrForm(im,roi,dilate,true);
+    ocrResults = ocrForm(im,roi,dilate,true); % display true
     formID = ocrResults.Words{1};
     formID = strip(formID)
     
@@ -50,7 +50,7 @@ for idx=1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlign(imRef,im,true);
+    [rec,qual] = surfAlign(imRef,im,false,true); % Nonrigid false, disp true
     % imshowpair(imRef,rec);
     
     %% Load Ground Truths

@@ -1,6 +1,9 @@
-function [recovered,qual] = surfAlign(ref,moving,disp)
-if nargin<3
+function [recovered,qual] = surfAlign(ref,moving,nonrigid,disp)
+if nargin<4
     disp = false;
+end
+if nargin<3
+    nonrigid = false;
 end
 ref = rgb2gray(ref);
 %     ref = imbinarize(ref);
@@ -21,7 +24,10 @@ tform = estimateGeometricTransform(...
 
 outputView = imref2d(size(ref));
 recovered  = imwarp(moving,tform,'OutputView',outputView);
-qual = mean(1-qual./4);
+
+if nonrigid
+    [~,recovered] = imregdemons(rgb2gray(recovered),ref,100,'AccumulatedFieldSmoothing',1.0,'PyramidLevels',7);
+end
 
 if disp
     imshowpair(recovered,ref)

@@ -1,4 +1,4 @@
-function [img,bw] = markerExtract(img,dilate)
+function [bw,img] = markerExtract(img,dilate)
 if nargin<2
   dilate = 0;
 end
@@ -11,4 +11,5 @@ bw = ismember(L, find([s.Extent] >= .7));
 bw = imdilate(bw, strel('disk',dilate));
 bw = cat(3,bw,bw,bw);
 img(~bw) = 0;
+bw = bw(:,:,1);
 end
