@@ -3,13 +3,13 @@ source = 'BUETEEE18C';
 sourcePath = ['../data/scanned' '/' source];
 targetPath = '../data/extracted';
 errorPath = '../data/error';
-refPath = '../collection/Letter';
+refPath = '../collection/A4';
 logPath = '../logs';
 groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
 %% Get mask and bounding box
-mask = imbinarize(rgb2gray(imread([refPath '/' 'maskThick.jpg'])));
+mask = imbinarize(rgb2gray(imread([refPath '/' 'maskThick.png'])));
 bw = bwareaopen(mask,800);
 s = regionprops(bw,'BoundingBox');
 s = struct2cell(s);
@@ -42,7 +42,7 @@ for idx=1:length(files)
     if isnan(str2double(formID))
         %         imwrite(im,[errorPath '/' files(idx).name])
         %         continue;
-        formID = '8'; % happens only when 8
+        formID = '8' % happens only when 8
     elseif ~ismember(str2double(formID),formIDs)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
@@ -68,7 +68,7 @@ for idx=1:length(files)
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
         filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
-        imwrite(grapheme,filename);
+%         imwrite(grapheme,filename);
     end
 end
 

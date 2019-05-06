@@ -1,4 +1,7 @@
 function [results,S] = ocrForm(img,roi,erode,imdisp)
+if nargin<4
+    imdisp = false;
+end
 img = imcrop(img,roi);
 % Make the image a bit bigger to help OCR
 img = imresize(img, 5);

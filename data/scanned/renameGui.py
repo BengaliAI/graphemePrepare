@@ -74,7 +74,7 @@ def leftKey(e):
     dispText.set(entryList[idx])
     renameSave(target+'.csv',scanList,entryList)
 
-#frame = tk.Frame(root, width=30, height=30)
+### Bind key to callbacks
 root.bind('<Alt-Left>', leftKey)
 root.bind('<Alt-Right>', rightKey)
 root.bind('<Return>', rightKey)
