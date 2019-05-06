@@ -1,4 +1,5 @@
 clear
+clc
 source = 'BUETEEE18C';
 sourcePath = ['../data/scanned' '/' source];
 targetPath = '../data/extracted';
@@ -15,9 +16,11 @@ s = regionprops(bw,'BoundingBox');
 s = struct2cell(s);
 s= s';
 
+% clear ref mask bw
+
 %% Extract
 files = dir(sourcePath);
-for idx=1:length(files)
+for idx=1:3%length(files)
     
     % JPG check
     split = (strsplit(files(idx).name,'.'));
@@ -50,8 +53,8 @@ for idx=1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlign(imRef,im,false,true); % Nonrigid false, disp true
-    % imshowpair(imRef,rec);
+    [rec,qual] = surfAlign(imRef,im,true,false); % Nonrigid, disp
+    imshowpair(imRef,rec);
     
     %% Load Ground Truths
     gt = utfRead(groundTruth);
@@ -68,7 +71,7 @@ for idx=1:length(files)
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
         filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
-%         imwrite(grapheme,filename);
+        imwrite(grapheme,filename);
     end
 end
 

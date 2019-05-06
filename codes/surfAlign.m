@@ -16,7 +16,7 @@ ptsDistorted = detectSURFFeatures(BW);
 [featuresOriginal,  validPtsOriginal]  = extractFeatures(ref,  ptsOriginal);
 [featuresDistorted, validPtsDistorted] = extractFeatures(BW, ptsDistorted);
 [indexPairs,qual] = matchFeatures(featuresOriginal, featuresDistorted,...
-    'MatchThreshold',13.541667,'Unique',true);
+    'MatchThreshold',70);
 matchedOriginal  = validPtsOriginal(indexPairs(:,1));
 matchedDistorted = validPtsDistorted(indexPairs(:,2));
 tform = estimateGeometricTransform(...

@@ -1,4 +1,4 @@
-function tableImg = extractTable(img,disp)
+function [tableImg,roi] = extractTable(img,disp)
 if nargin<2
     disp=false;
 end
@@ -11,8 +11,8 @@ end
 tableImg = imrotate(img,-deg(2),'bilinear','loose');
 centroids = markerCentroids(tableImg);
 centroids = sort(centroids);
-tableImg = imcrop(tableImg,[0,centroids(3,2)-50,...
-    size(tableImg,2),size(tableImg,1)-centroids(2,1)]);
+roi = [0,centroids(3,2)-50,size(tableImg,2),size(tableImg,1)-centroids(3,2)+50];
+tableImg = imcrop(tableImg,roi);
 if disp
     imshow(tableImg)
 end
