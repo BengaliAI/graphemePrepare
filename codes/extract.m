@@ -53,7 +53,7 @@ for idx=1:3%length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlign(imRef,im,true,false); % Nonrigid, disp
+    [rec,qual] = surfAlign(imRef,im,false,true); % Nonrigid, disp
     imshowpair(imRef,rec);
     
     %% Load Ground Truths
