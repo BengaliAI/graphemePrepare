@@ -1,6 +1,6 @@
 clear
 clc
-source = 'BUETEEE18C';
+source = 'BUETEEE18A';
 sourcePath = ['../data/scanned' '/' source];
 targetPath = '../data/extracted';
 errorPath = '../data/error';
@@ -37,7 +37,7 @@ for idx=1:length(files)
     %% OCR detect formID
     roi = [2100 1 450 500];
     dilate = 5; 
-    ocrResults = ocrForm(im,roi,dilate,true); % display true
+    ocrResults = ocrForm(im,roi,dilate,false); % display true
     formID = ocrResults.Words{1};
     formID = strip(formID)
     
@@ -53,8 +53,8 @@ for idx=1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlignGPU(imRef,im,false,false); % Nonrigid, disp
-    imshowpair(imRef,rec);
+    [rec,qual] = surfAlignGPU(imRef,im,true,false); % Nonrigid, disp
+%     imshowpair(imRef,rec);
     
     %% Load Ground Truths
     gt = utfRead(groundTruth);
