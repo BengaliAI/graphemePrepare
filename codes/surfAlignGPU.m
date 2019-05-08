@@ -1,16 +1,10 @@
-function [recovered,qual] = surfAlign(ref,moving,nonrigid,disp)
-if nargin<4
-    disp = false;
-end
+function [recovered,qual] = surfAlignGPU(ref,moving,nonrigid,disp)
+
 if nargin<3
     disp = false;
-    nonrigid = false;
 end
 ref = rgb2gray(ref);
-%     ref = imbinarize(ref);
 BW = rgb2gray(moving);
-%     BW = imbinarize(BW);
-%     imshow(BW)
 
 ptsOriginal  = detectSURFFeatures(ref);
 ptsDistorted = detectSURFFeatures(BW);
@@ -26,10 +20,20 @@ tform = estimateGeometricTransform(...
 outputView = imref2d(size(ref));
 recovered  = imwarp(moving,tform,'OutputView',outputView);
 
-if nonrigid
-    [D,~] = imregdemons(rgb2gray(recovered),ref,100,'AccumulatedFieldSmoothing',3.0,'PyramidLevels',7);
-    recovered = imwarp(recovered,D);
-end
+fixedGPU  = gpuArray(ref);
+movingGPU = gpuArray(recovered);
+
+% fixedGPU  = rgb2gray(fixedGPU);
+movingGPU = rgb2gray(movingGPU);
+
+% fixedHist = imhist(fixedGPU);
+% movingGPU = histeq(movingGPU,fixedHist);
+
+[D,~] = imregdemons(movingGPU,fixedGPU,100,'AccumulatedFieldSmoothing',3.0,'PyramidLevels',7);
+
+recovered = gather(recovered);
+D = gather(D);
+recovered = imwarp(recovered,D);
 
 if disp
     imshowpair(recovered,ref)

@@ -20,7 +20,7 @@ s= s';
 
 %% Extract
 files = dir(sourcePath);
-for idx=1:3%length(files)
+for idx=1:length(files)
     
     % JPG check
     split = (strsplit(files(idx).name,'.'));
@@ -53,7 +53,7 @@ for idx=1:3%length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlign(imRef,im,false,true); % Nonrigid, disp
+    [rec,qual] = surfAlignGPU(imRef,im,false,false); % Nonrigid, disp
     imshowpair(imRef,rec);
     
     %% Load Ground Truths
