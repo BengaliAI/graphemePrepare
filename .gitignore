@@ -1,6 +1,6 @@
 data/scanned/*
 !data/scanned/placeholder.txt
-!data/scanned/renameGui.py
+!data/scanned/*.py
 codes/*.asv
 data/extracted/**/*.png
 data/**/.jpg
