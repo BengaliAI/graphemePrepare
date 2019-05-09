@@ -1,49 +1,37 @@
-% in main 
-% label = []
-% label_cell = num2cell(label)
-% label=metadataExtract(refPath,aligned_img,ratio) #aligned_img=rec of surf
-% label_cell{end+1} = label
+function [ meta ] = metadataExtract( refPath, img, ratio )
 
-
-function [ label ] = metadataExtract( refPath, aligned_img, ratio )
-    
-    if nargin<3
-      ratio = 0.3;  % check this ratio with tic omr
-    end
-    
-    img=imcrop(aligned_img,[115 185 1900-115 540-185]);
-%     figure
-%     imshow(img)
-    metadata_ref = imread([refPath '/metadataRef.png']);
-    metadata_ref=imcrop(metadata_ref,[115 185 1900-115 540-185]);
-%     figure
-%     imshow(metadata_ref)
-    omr = ~imbinarize(rgb2gray(img));
-    omr = bwareaopen(omr,800);
-    CC = bwconncomp(omr);
-    L = labelmatrix(CC);
-    s_omr = regionprops(CC,'Extent');
-    omr = ismember(L, find([s_omr.Extent] >= .7));
-    s_omr = regionprops(omr,'Centroid','BoundingBox');
-    metadata_omr = imbinarize(rgb2gray(metadata_ref));
-    CC = bwconncomp(metadata_omr);
-    L = labelmatrix(CC);
-    s_metadata_omr = regionprops(CC,'Extent');
-    metadata_omr = ismember(L, find([s_metadata_omr.Extent] >= .7));
-    s_metadata_omr = regionprops(metadata_omr,'Centroid','BoundingBox');
-    label = [];
-    for i = 1:numel(s_metadata_omr)
-        omr_circles = imcrop(img, s_metadata_omr(i).BoundingBox);
-        omr_circles = imbinarize(rgb2gray(omr_circles));
-        [uv,~,idx] = unique(omr_circles);
-        n = accumarray(idx(:),1);
-        black_ratio(i) = n(1)/(n(1)+n(2));
-        if black_ratio(i)> ratio
-            label = [label i];
-        end
-%         figure
-%         imshow(omr_circles)
-%         axis on
-    end
+if nargin<3
+    ratio = 0.3;  % check this ratio with tic omr
 end
 
+roi=[0 0 size(img,2) 540];
+img=imcrop(img,roi);
+metadata_ref = imbinarize(rgb2gray(imread([refPath '/metadataRef.png'])));
+metadata_ref=imcrop(metadata_ref,roi);
+metadata_ref = imerode(metadata_ref,strel('disk',2));
+img = ~imbinarize(rgb2gray(img));
+img(~metadata_ref) = 0;
+imshowpair(metadata_ref,img)
+S = regionprops(metadata_ref,'BoundingBox');
+S = cat(1,S.BoundingBox);
+%% justify BoundingBox arrangement according to OMR
+quantIdx = discretize(S(:,2),4,'IncludedEdge','left'); %% find quantization Idx
+for i=1:4
+    S(quantIdx==i,2) = mean(S(quantIdx==i,2)); %% quantize the height to mean of bins
+end
+S = sortrows(S,2);
+%% find omr fillups
+% % imshow(img)
+% % hold on
+meta=[];
+for i = 1:size(S,1)
+    BB = S(i,:);
+    %     rectangle('Position',BB,'EdgeColor','r','LineWidth',2)
+    %     annotation('textbox',[BB(1)/size(img,2) BB(2)/size(img,1) BB(3)/size(img,2) BB(4)/size(img,1)],'String',num2str(i));
+    fillup = sum(sum(imcrop(img,BB)))/(30*30);
+    if fillup >ratio
+        meta = [meta;i];
+    end
+    % hold off
+end
+end
