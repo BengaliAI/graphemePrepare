@@ -1,4 +1,4 @@
-function [meta] = metadataExtract( refPath,img,disp)
+function [meta] = metadataExtract(refPath,img,disp)
 if nargin<3
     disp=false;
 end
@@ -25,16 +25,18 @@ for i = 1:size(S,1)
     fillup = [fillup;sum(sum(imcrop(img,S(i,:))))/(30*30)];
 end
 if disp
+    figure;
     imshowpair(metadata_ref,img)
     hold on
 end
 meta = [];
 for i = 1:size(S,1)
-    if fillup(i) > median(fillup)
+    if fillup(i) > mean(fillup)
         meta = [meta;i];
         if disp
             rectangle('Position',S(i,:),'EdgeColor','r','LineWidth',2)
         end
     end
 end
+hold off
 end

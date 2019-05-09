@@ -1,6 +1,6 @@
 clear
 clc
-source = 'RIFLESCLG1';
+source = 'BUETEEE18A';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -40,7 +40,7 @@ for idx=1:length(files)
     %% OCR detect formID
     roi = [2100 1 450 500];
     dilate = 5;
-    ocrResults = ocrForm(im,roi,dilate,false); % display true
+    ocrResults = ocrForm(im,roi,dilate,true); % display true
     formID = ocrResults.Words{1};
     formID = strip(formID)
     
@@ -56,7 +56,7 @@ for idx=1:length(files)
     
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlignGPU(imRef,im,true,false); % Nonrigid, disp
+    [rec,qual] = surfAlignGPU(imRef,im,true,true); % Nonrigid, disp
     %     imshowpair(imRef,rec);
     
     %% Extract Metadata
