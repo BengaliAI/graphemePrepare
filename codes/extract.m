@@ -1,6 +1,6 @@
 clear
 clc
-source = 'BUETEEE18A';
+source = 'RIFLESCLG2';
 sourcePath = ['../data/scanned' '/' source];
 targetPath = '../data/extracted';
 errorPath = '../data/error';
