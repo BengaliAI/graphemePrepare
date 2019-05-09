@@ -38,7 +38,7 @@ filename.set('Filename: '+scanList[idx])
 
 dispText = tk.StringVar()
 studentid = tk.Entry(container, text='Student ID/Roll', bd =5, width=50, textvariable=dispText)
-studentid.pack(side='left')
+studentid.pack(side='right')
 dispText.set(entryList[idx])
 
 ### display image of first scan
