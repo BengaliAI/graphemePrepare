@@ -1,7 +1,8 @@
 clear
 clc
-source = 'RIFLESCLG2';
+source = 'RIFLESCLG1';
 sourcePath = ['../data/scanned' '/' source];
+metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
 errorPath = '../data/error';
 refPath = '../collection/A4';
@@ -9,15 +10,17 @@ logPath = '../logs';
 groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
-%% Get mask and bounding box
+%% Get mask, bounding box and meta
 mask = imbinarize(rgb2gray(imread([refPath '/' 'maskThick.png'])));
 bw = bwareaopen(mask,800);
 s = regionprops(bw,'BoundingBox');
 s = struct2cell(s);
 s= s';
+clear mask bw
 
-% clear ref mask bw
-
+metaTable = importMeta(metadataFile);
+metaTable.formID = zeros(size(metaTable,1),1);
+metaTable.formMeta = string(zeros(size(metaTable,1),1));
 %% Extract
 files = dir(sourcePath);
 for idx=1:length(files)
@@ -36,7 +39,7 @@ for idx=1:length(files)
     
     %% OCR detect formID
     roi = [2100 1 450 500];
-    dilate = 5; 
+    dilate = 5;
     ocrResults = ocrForm(im,roi,dilate,false); % display true
     formID = ocrResults.Words{1};
     formID = strip(formID)
@@ -54,7 +57,13 @@ for idx=1:length(files)
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
     [rec,qual] = surfAlignGPU(imRef,im,true,false); % Nonrigid, disp
-%     imshowpair(imRef,rec);
+    %     imshowpair(imRef,rec);
+    
+    %% Extract Metadata
+    meta = metadataExtract(refPath,rec);
+    row = find(metaTable.filename == files(idx).name);
+    metaTable.formID(row) = str2double(formID);
+    metaTable.formMeta(row) = strjoin(string(meta));
     
     %% Load Ground Truths
     gt = utfRead(groundTruth);
@@ -75,5 +84,5 @@ for idx=1:length(files)
     end
 end
 
-
-
+%% Save metaData
+writetable(metaTable,metadataFile);
