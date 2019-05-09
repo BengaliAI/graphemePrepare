@@ -15,9 +15,9 @@ imshowpair(metadata_ref,img)
 S = regionprops(metadata_ref,'BoundingBox');
 S = cat(1,S.BoundingBox);
 %% justify BoundingBox arrangement according to OMR
-quantIdx = discretize(S(:,2),4,'IncludedEdge','left'); %% find quantization Idx
+bins = discretize(S(:,2),4,'IncludedEdge','left'); %% quantization bins
 for i=1:4
-    S(quantIdx==i,2) = mean(S(quantIdx==i,2)); %% quantize the height to mean of bins
+    S(bins==i,2) = mean(S(bins==i,2)); %% quantize to mean
 end
 S = sortrows(S,2);
 %% find omr fillups
