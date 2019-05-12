@@ -32,7 +32,7 @@ for idx=1:length(files)
     end
     % empty check
     im = imread([sourcePath '/' files(idx).name]);
-    if sum(sum(sum(~imbinarize(im))))<400000
+    if sum(sum(~imbinarize(rgb2gray(im))))<400000
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end

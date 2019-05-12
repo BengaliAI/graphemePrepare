@@ -17,7 +17,7 @@ root = tk.Tk()
 #target = 'BUETEEE18C'
 target = sys.argv[1]
 scanList = os.listdir(target)
-roi = (0,0,1900,500)
+roi = (500,0,1900,500)
 
 ### if trancsription exists
 if os.path.isfile(target+'.csv'):
