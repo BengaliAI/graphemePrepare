@@ -25,7 +25,7 @@
 5. `cd ./data/error` and check for extraction failures.
 6. `cd ./data/extracted` and check for label errors in sub-folders.
 7. Run `python pack.py` which will create separate folders for each extracted `<batchname>` inside `./data/packed`.
-8. `cd ./data/packed` and delete `overwriting` and `empty blobs`.
+8. `cd ./data/packed/<batchname>` and delete `overwriting` and `empty blobs`.
 
 #### Dependencies
 - MATLAB 2017b or higher
