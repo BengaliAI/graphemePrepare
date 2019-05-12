@@ -28,6 +28,8 @@
 8. `cd ./data/packed` and delete `overwriting` and `empty blobs`.
 
 #### Dependencies
-MATLAB 2017b or higher
-MATLAB Computer Vision Toolbox
-Pillow == 4.2.1
+- MATLAB 2017b or higher
+
+- MATLAB Computer Vision Toolbox
+
+- Pillow == 4.2.1
