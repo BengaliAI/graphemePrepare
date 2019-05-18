@@ -6,3 +6,4 @@ data/extracted/**/*.png
 data/**/.jpg
 data/packed/*
 !data/packed/placeholder.txt
+!data/packed/*.py
