@@ -72,7 +72,7 @@ gridHeight = int(winHeight*.8)
 gridWidth = int(winWidth*.8)
 imgWidth = math.floor(gridWidth/cols)
 imgHeight = math.floor(gridHeight/rows)
-anchors = [each for each in zip(range(0,gridWidth,imgWidth),range(0,gridHeight,imgHeight))]
+anchors = [[(cl,rw) for rw in range(0,gridHeight,imgHeight)] for cl in range(0,gridWidth,imgWidth)]
 print(anchors)
 c = tk.Canvas(root, width=gridWidth, height=gridHeight, borderwidth=0, background='white')
 c.pack()
