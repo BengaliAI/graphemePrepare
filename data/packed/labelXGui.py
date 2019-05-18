@@ -23,9 +23,8 @@ def confSave(filename,extrList,entryList,passList,header=['filename','label','pa
 			writer.writerows([[scn,ent,pas] for scn,ent,pas in zip(extrList,entryList,passList)])
 		else:
 			writer.writerows([[scn,ent]+pas for scn,ent,pas in zip(extrList,entryList,passList)])
-
 packetidx = 0
-rows = 6
+rows = 12
 cols = 15
 packetSize = rows*cols
 root = tk.Tk()
@@ -68,13 +67,29 @@ packetid.pack(side='right')
 packet.set(str(packetidx)+'/'+str(numPack))
 
 ### create grid
-gridHeight = int(winHeight*.8)
-gridWidth = int(winWidth*.8)
+gridHeight = math.ceil(winHeight*.8)
+gridWidth = math.ceil(winWidth*.8)
 imgWidth = math.floor(gridWidth/cols)
 imgHeight = math.floor(gridHeight/rows)
-anchors = [[(cl,rw) for rw in range(0,gridHeight,imgHeight)] for cl in range(0,gridWidth,imgWidth)]
-print(anchors)
+anchors = [[(cl,rw) for cl in range(0,gridWidth,imgWidth)] for rw in range(0,gridHeight,imgHeight)]
 c = tk.Canvas(root, width=gridWidth, height=gridHeight, borderwidth=0, background='white')
 c.pack()
 
+tiles = [[None for _ in range(cols)] for _ in range(rows)]
+path = 'M:/graphemePrepare/data/packed/BUETEEE18A/ং_BUETEEE18A_scan0048.png'
+img = ImageTk.PhotoImage(Image.open(path).resize((imgWidth,imgHeight)))
+def callback(event):
+    # Calculate column and row number
+    col = int(event.x//imgWidth)
+    row = int(event.y//imgHeight)
+    print(row,col)
+    # If the tile is not filled, create a rectangle
+    if not tiles[row][col]:
+        tiles[row][col] = c.create_image(anchors[row][col][0],anchors[row][col][1],image=img, anchor='nw')
+    # If the tile is filled, delete the rectangle and clear the reference
+    else:
+        c.delete(tiles[row][col])
+        tiles[row][col] = None
+
+c.bind("<Button-1>", callback)
 root.mainloop()
