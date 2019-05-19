@@ -37,7 +37,8 @@ class labelXGui(object):
         self.c = self.frameInit()
         self.showPacket(self.packetidx)
         self.c.bind("<Button-1>", self.onClick)
-        self.root.mainloop()
+        self.root.bind("<Alt-Right>", self.nextPacket)
+        self.root.bind("<Alt-Left>", self.prevPacket)
 
     def chkConf(self):
         """
@@ -79,7 +80,7 @@ class labelXGui(object):
     def frameInit(self):
         """
         Create Gui containers
-        :returns: canvas container
+        :returns: tkinter canvas object
         """
         global winHeight, winWidth
         self.container = tk.LabelFrame(self.root, text='Bengali.AI Common Graphemes in Context')
@@ -91,7 +92,13 @@ class labelXGui(object):
         self.packet = tk.StringVar()
         self.packetDisp = tk.Label(self.container, textvariable=self.packet)
         self.packetDisp.pack(side='right')
-        self.packet.set(str(self.packetidx) + '/' + str(self.numPack))
+        self.packet.set(str(self.packetidx) + '/' + str(self.numPack-1))
+
+        ### add buttons
+        self.next = tk.Button(self.container, text="NEXT", command=self.nextPacket)
+        self.next.pack(side='right')
+        self.prev = tk.Button(self.container, text="PREV", command=self.prevPacket)
+        self.prev.pack(side='right')
 
         ### create grid
         self.gridHeight = math.ceil(winHeight * .8)
@@ -105,6 +112,19 @@ class labelXGui(object):
         c.pack()
         return c
 
+    def nextPacket(self,event=None):
+        self.packetidx += 1
+        if self.packetidx > self.numPack-1:
+            self.packetidx = self.numPack-1
+        self.packet.set(str(self.packetidx) + '/' + str(self.numPack - 1))
+        self.showPacket(self.packetidx)
+
+    def prevPacket(self,event=None):
+        self.packetidx -= 1
+        if self.packetidx < 0:
+            self.packetidx = 0
+        self.packet.set(str(self.packetidx) + '/' + str(self.numPack - 1))
+        self.showPacket(self.packetidx)
 
     def showPacket(self,packetidx):
         """
@@ -117,6 +137,7 @@ class labelXGui(object):
             path = os.path.join(os.getcwd(), self.target, self.packed[i])
             self.imgBuff.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
             self.c.create_image(anchor, image=self.imgBuff[-1], anchor='nw')
+            self.c.create_text(anchor,text=self.packed[i].split('_')[0], anchor='nw')
             self.annotPass[i] = '1'
 
     def onClick(self,event):
@@ -139,5 +160,7 @@ class labelXGui(object):
         self.annot[idx[row + col * self.rows]] = '0'
 
 
+if __name__ == "__main__":
 
-app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
+    app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
+    app.root.mainloop()
