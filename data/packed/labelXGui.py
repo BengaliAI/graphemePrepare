@@ -1,9 +1,11 @@
 import tkinter as tk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 import sys
 import csv
 import math
+import shutil
 
 ### On windows get display size
 try:
@@ -17,14 +19,14 @@ except:
 
 
 class labelXGui(object):
-    def __init__(self, target, rows, cols):
+    def __init__(self, target, rows, cols, startidx=None):
         """
         creates Gui object for annotation
         :param target: target filename
         :param rows: number of rows to display
         :param cols: number of columns to display
+        :param startidx: starting packet
         """
-        self.packetidx = 0
         self.rows = rows
         self.cols = cols
         self.packetSize = rows * cols
@@ -34,12 +36,20 @@ class labelXGui(object):
         self.packed = os.listdir(target)
         self.numPack = math.ceil(len(self.packed) / self.packetSize)
         self.chkConf()
+
+        ## override for debugging
+        if startidx is not None:
+            self.packetidx = startidx
+
         self.c = self.frameInit()
         self.showPacket(self.packetidx)
         self.c.bind("<Button-1>", self.onClick)
         self.root.bind("<Alt-Right>", self.nextPacket)
         self.root.bind("<Alt-Left>", self.prevPacket)
         self.root.bind("<Control-Key-s>", self.confSave)
+
+    def __call__(self):
+        self.root.mainloop()
 
     def chkConf(self):
         """
@@ -60,15 +70,19 @@ class labelXGui(object):
                 ### set packetidx to latest annotated packet
                 try:
                     index = self.annotPass.index('0')
-                    self.packetidx = index // self.packetSize - 1
+                    if index == 0:
+                        self.packetidx = 0
+                    else:
+                        self.packetidx = index // self.packetSize - 1
                 except ValueError:
-                    self.packetidx = 0
+                    self.packetidx = self.packetSize - 1
         else:
             self.header = ['filename', 'label', 'pass']
             self.annot = ['1'] * len(self.packed)
             self.annotPass = ['0'] * len(self.packed)
             self.confSave()
             self.metaList = []
+            self.packetidx = 0
 
     def confSave(self,event=None):
         """
@@ -109,6 +123,8 @@ class labelXGui(object):
         self.next.pack(side='right')
         self.prev = tk.Button(self.container, text="PREV", command=self.prevPacket)
         self.prev.pack(side='right')
+        self.transfer = tk.Button(self.container, text="TRANSFER LABEL ERRORS", command=self.transfer)
+        self.transfer.pack(side='left')
 
         ### create grid
         self.gridHeight = math.ceil(winHeight * .8)
@@ -121,6 +137,13 @@ class labelXGui(object):
                            height=self.gridHeight, borderwidth=0, background='white')
         c.pack()
         return c
+
+    def transfer(self):
+        if not self.packetidx == self.numPack - 1:
+            messagebox.showerror("Error", "Cannot transfer graphemes until label checking is complete")
+        else:
+            answer = messagebox.askokcancel("Confirmation", "Confirm Transfer")
+            print(answer)
 
     def nextPacket(self,event=None):
         self.packetidx += 1
@@ -147,7 +170,10 @@ class labelXGui(object):
         idx = range(packetidx * self.packetSize, (packetidx + 1) * self.packetSize)
         for enum, each in enumerate(zip(idx, self.anchors)):
             i,anchor = each
-            path = os.path.join(os.getcwd(), self.target, self.packed[i])
+            try:
+                path = os.path.join(os.getcwd(), self.target, self.packed[i])
+            except IndexError:
+                break
             self.imgBuff.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
             self.c.create_image(anchor, image=self.imgBuff[-1], anchor='nw')
             if self.annot[i] == '0':
@@ -177,11 +203,20 @@ class labelXGui(object):
 
     def updateAnnot(self, row, col,):
         idx = range(self.packetidx * self.packetSize, (self.packetidx + 1) * self.packetSize)
-        self.annot[idx[row + col * self.rows]] = '0'
+        try:
+            self.annot[idx[row + col * self.rows]] = '0'
+        except IndexError:
+            print('No grapheme')
 
 
 if __name__ == "__main__":
 
+    ### override for debugging
     # app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
-    app = labelXGui(target=sys.argv[1],rows=12,cols=15)
-    app.root.mainloop()
+
+    if len(sys.argv)<2:
+        print('ERROR: Please Specify Batchname Argument `python labelXGui.py BUETEEE18A`')
+        exit()
+    else:
+        app = labelXGui(target=sys.argv[1],rows=12,cols=15)
+        app()
