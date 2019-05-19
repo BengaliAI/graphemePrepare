@@ -73,9 +73,9 @@ class labelXGui(object):
                     if index == 0:
                         self.packetidx = 0
                     else:
-                        self.packetidx = index // self.packetSize - 1
+                        self.packetidx = index // self.numPack - 1
                 except ValueError:
-                    self.packetidx = self.packetSize - 1
+                    self.packetidx = self.numPack - 1
         else:
             self.header = ['filename', 'label', 'pass']
             self.annot = ['1'] * len(self.packed)
@@ -139,10 +139,11 @@ class labelXGui(object):
         return c
 
     def transfer(self):
-        if not self.packetidx == self.numPack - 1:
+        if '0' in self.annotPass:
             messagebox.showerror("Error", "Cannot transfer graphemes until label checking is complete")
         else:
             answer = messagebox.askokcancel("Confirmation", "Confirm Transfer")
+            self.confSave()
             print(answer)
 
     def nextPacket(self,event=None):
@@ -201,7 +202,7 @@ class labelXGui(object):
             self.c.delete(self.tiles[row][col])
             self.tiles[row][col] = None
 
-    def updateAnnot(self, row, col,):
+    def updateAnnot(self, row, col):
         idx = range(self.packetidx * self.packetSize, (self.packetidx + 1) * self.packetSize)
         try:
             self.annot[idx[row + col * self.rows]] = '0'
