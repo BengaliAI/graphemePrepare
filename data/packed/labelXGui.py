@@ -27,6 +27,7 @@ class labelXGui(object):
         :param cols: number of columns to display
         :param startidx: starting packet
         """
+        self.errorPath = os.path.join('..','error')
         self.rows = rows
         self.cols = cols
         self.packetSize = rows * cols
@@ -143,8 +144,13 @@ class labelXGui(object):
             messagebox.showerror("Error", "Cannot transfer graphemes until label checking is complete")
         else:
             answer = messagebox.askokcancel("Confirmation", "Confirm Transfer")
-            self.confSave()
-            print(answer)
+            if answer:
+                self.root.destroy()
+                self.confSave()
+                errorList = [each for i,each in enumerate(self.packed) if self.annot[i] == '0']
+                for each in errorList:
+                    shutil.move(os.path.join(os.getcwd(),self.target,each),os.path.join(self.errorPath,each))
+                print("Transfer Complete")
 
     def nextPacket(self,event=None):
         self.packetidx += 1
