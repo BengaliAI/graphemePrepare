@@ -32,9 +32,12 @@ class labelXGui(object):
         self.target = target
         self.targetConf = target + '.conf'
         self.packed = os.listdir(target)
-        self.numPack = math.ceil(len(self.packed) / packetSize)
+        self.numPack = math.ceil(len(self.packed) / self.packetSize)
         self.chkConf()
-        self.frameInit()
+        self.c = self.frameInit()
+        self.showPacket(self.packetidx)
+        self.c.bind("<Button-1>", self.onClick)
+        self.root.mainloop()
 
     def chkConf(self):
         """
@@ -76,6 +79,7 @@ class labelXGui(object):
     def frameInit(self):
         """
         Create Gui containers
+        :returns: canvas container
         """
         global winHeight, winWidth
         self.container = tk.LabelFrame(self.root, text='Bengali.AI Common Graphemes in Context')
@@ -92,117 +96,48 @@ class labelXGui(object):
         ### create grid
         self.gridHeight = math.ceil(winHeight * .8)
         self.gridWidth = math.ceil(winWidth * .8)
-        self.imgWidth = math.floor(self.gridWidth / cols)
-        self.imgHeight = math.floor(self.gridHeight / rows)
+        self.imgWidth = math.floor(self.gridWidth / self.cols)
+        self.imgHeight = math.floor(self.gridHeight / self.rows)
         self.anchors = [(cl, rw) for cl in range(0, self.gridWidth, self.imgWidth)
                         for rw in range(0, self.gridHeight, self.imgHeight)]
-        self.c = tk.Canvas(self.root, width=self.gridWidth,
+        c = tk.Canvas(self.root, width=self.gridWidth,
                            height=self.gridHeight, borderwidth=0, background='white')
-        self.c.pack()
+        c.pack()
+        return c
 
-def confSave(filename, packed, annot, annotPass, header=('filename', 'label', 'pass')):
-    with open(filename, 'w', encoding='utf8') as writeFile:
-        writer = csv.writer(writeFile, lineterminator='\n')
-        writer.writerow(header)
-        if len(header) < 4:
-            writer.writerows([[scn, ent, pas] for scn, ent, pas in zip(packed, annot, annotPass)])
+
+    def showPacket(self,packetidx):
+        """
+        Displays packet for current packetidx and updates annotPass
+        """
+        self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.imgBuff = []
+        idx = range(packetidx * self.packetSize, (packetidx + 1) * self.packetSize)
+        for i, anchor in zip(idx, self.anchors):
+            path = os.path.join(os.getcwd(), self.target, self.packed[i])
+            self.imgBuff.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
+            self.c.create_image(anchor, image=self.imgBuff[-1], anchor='nw')
+            self.annotPass[i] = '1'
+
+    def onClick(self,event):
+        col = int(event.x // self.imgWidth)
+        row = int(event.y // self.imgHeight)
+        print(row, col)
+        if not self.tiles[row][col]:
+            self.tiles[row][col] = self.c.create_oval(col * self.imgWidth, row * self.imgHeight,
+                                                      (col + 1) * self.imgWidth,
+                                                      (row + 1) * self.imgHeight,
+                                                      stipple='gray50', width=2)
+            self.updateAnnot(row,col)
+        # If the tile is filled, delete the rectangle and clear the reference
         else:
-            writer.writerows([[scn, ent] + pas for scn, ent, pas in zip(packed, annot, annotPass)])
+            self.c.delete(self.tiles[row][col])
+            self.tiles[row][col] = None
+
+    def updateAnnot(self, row, col,):
+        idx = range(self.packetidx * self.packetSize, (self.packetidx + 1) * self.packetSize)
+        self.annot[idx[row + col * self.rows]] = '0'
 
 
-def packetDisplay(canvas, packetidx, packetSize, target, packed, annotPass, imgWidth, imgHeight, anchors):
-    '''
-    display a set of graphemes for a given packetidx
-    '''
-    img = []
-    idx = range(packetidx * packetSize, (packetidx + 1) * packetSize)
-    for i, anchor in zip(idx, anchors):
-        path = os.path.join(os.getcwd(), target, packed[i])
-        img.append(ImageTk.PhotoImage(Image.open(path).resize((imgWidth, imgHeight))))
-        canvas.create_image(anchor, image=img[-1], anchor='nw')
-        annotPass[i] = '1'
-    return img, annotPass
 
-
-def updateAnnot(annot, row, col, packetidx, packetSize, rows):
-    '''
-    Update annotation for a given grapheme
-    '''
-    idx = range(packetidx * packetSize, (packetidx + 1) * packetSize)
-    annot[idx[row + col * rows]] = '0'
-    return annot
-
-
-packetidx = 0
-rows = 12
-cols = 15
-packetSize = rows * cols
-root = tk.Tk()
-target = 'BUETEEE18A'
-# target = sys.argv[1]
-targetConf = target + '.conf'
-packed = os.listdir(target)
-numPack = math.ceil(len(packed) / packetSize)
-
-### if conf exists
-if os.path.isfile(targetConf):
-    with open(targetConf, 'r', encoding='utf8') as readFile:
-        csvIn = csv.reader(readFile)
-        csvIn = list(csvIn)
-        header = csvIn[0]
-        packed = [each[0] for each in csvIn[1:]]
-        annot = [each[1] for each in csvIn[1:]]
-        annotPass = [each[2] for each in csvIn[1:]]
-        if len(header) > 3:
-            metaList = [each[2:] for each in csvIn[1:]]
-        else:
-            metaList = []
-else:
-    header = ['filename', 'label', 'pass']
-    annot = ['1'] * len(packed)
-    annotPass = ['0'] * len(packed)
-    confSave(targetConf, packed, annot, annotPass, header)
-    metaList = []
-
-### Batchname and packetidx container
-container = tk.LabelFrame(root, text='Bengali.AI Common Graphemes in Context')
-container.pack(fill="both", expand="yes")
-batchname = tk.StringVar()
-label = tk.Label(container, textvariable=batchname)
-label.pack(side='top')
-batchname.set('BATCHNAME: ' + target)
-packet = tk.StringVar()
-packetid = tk.Label(container, textvariable=packet)
-packetid.pack(side='right')
-packet.set(str(packetidx) + '/' + str(numPack))
-
-### create grid
-gridHeight = math.ceil(winHeight * .8)
-gridWidth = math.ceil(winWidth * .8)
-imgWidth = math.floor(gridWidth / cols)
-imgHeight = math.floor(gridHeight / rows)
-anchors = [(cl, rw) for cl in range(0, gridWidth, imgWidth) for rw in range(0, gridHeight, imgHeight)]
-c = tk.Canvas(root, width=gridWidth, height=gridHeight, borderwidth=0, background='white')
-c.pack()
-
-img, annotPass = packetDisplay(c, packetidx, packetSize, target, packed, annotPass, imgWidth, imgHeight, anchors)
-tiles = [[None for _ in range(cols)] for _ in range(rows)]
-
-
-def onClick(event):
-    col = int(event.x // imgWidth)
-    row = int(event.y // imgHeight)
-    print(row, col)
-    if not tiles[row][col]:
-        tiles[row][col] = c.create_oval(col * imgWidth, row * imgHeight, (col + 1) * imgWidth, (row + 1) * imgHeight,
-                                        stipple='gray50', width=2)
-        updateAnnot(annot, row, col, packetidx, packetSize, rows)
-    # If the tile is filled, delete the rectangle and clear the reference
-    else:
-        c.delete(tiles[row][col])
-        tiles[row][col] = None
-    # print(annot)
-
-
-c.bind("<Button-1>", onClick)
-root.mainloop()
+app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
