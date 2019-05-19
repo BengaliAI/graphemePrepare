@@ -182,5 +182,6 @@ class labelXGui(object):
 
 if __name__ == "__main__":
 
-    app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
+    # app = labelXGui(target='BUETEEE18A',rows=12,cols=15)
+    app = labelXGui(target=sys.argv[1],rows=12,cols=15)
     app.root.mainloop()
