@@ -14,15 +14,92 @@ except:
     winWidth = 1920
     winHeight = 1080
 
-### Utility functions
-def confSave(filename,extrList,entryList,passList,header=['filename','label','pass']):
-	with open(filename,'w',encoding='utf-8') as writeFile:
-		writer = csv.writer(writeFile, lineterminator='\n')
-		writer.writerow(header)
-		if len(header)<4:
-			writer.writerows([[scn,ent,pas] for scn,ent,pas in zip(extrList,entryList,passList)])
-		else:
-			writer.writerows([[scn,ent]+pas for scn,ent,pas in zip(extrList,entryList,passList)])
+class labelXGui(object):
+    def __init__(self,target,rows,cols):
+        self.packetidx = 0
+        self.rows = rows
+        self.cols = cols
+        self.packetSize = rows * cols
+        self.root = tk.Tk()
+        self.target = target
+        # target = sys.argv[1]
+        self.targetConf = target + '.conf'
+        self.packed = os.listdir(target)
+        self.numPack = math.ceil(len(packed) / packetSize)
+        self.chkConf()
+
+    def chkConf(self):
+        '''
+        check for previous config, else create
+        '''
+        if os.path.isfile(self.targetConf):
+            with open(self.targetConf, 'r', encoding='utf8') as readFile:
+                csvIn = csv.reader(readFile)
+                csvIn = list(csvIn)
+                self.header = csvIn[0]
+                self.packed = [each[0] for each in csvIn[1:]]
+                self.annot = [each[1] for each in csvIn[1:]]
+                self.annotPass = [each[2] for each in csvIn[1:]]
+                if len(self.header) > 3:
+                    self.metaList = [each[2:] for each in csvIn[1:]]
+                else:
+                    self.metaList = []
+        else:
+            self.header = ['filename', 'label', 'pass']
+            self.annot = ['1'] * len(packed)
+            self.annotPass = ['0'] * len(packed)
+            self.confSave()
+            self.metaList = []
+
+    def confSave(self):
+        '''
+        save configuration file
+        '''
+        with open(self.targetConf,'w',encoding='utf8') as writeFile:
+            writer = csv.writer(writeFile, lineterminator='\n')
+            writer.writerow(self.header)
+            if len(self.header)<4:
+                writer.writerows([[scn,ent,pas] for scn,ent,pas in zip(self.packed,
+                                                                       self.annot,self.annotPass)])
+            else:
+                writer.writerows([[scn,ent]+pas for scn,ent,pas in zip(self.packed,
+                                                                       self.annot,self.annotPass)])
+
+def confSave(filename,packed,annot,annotPass,header=['filename','label','pass']):
+    '''
+    save configuration file
+    '''
+    with open(filename,'w',encoding='utf8') as writeFile:
+        writer = csv.writer(writeFile, lineterminator='\n')
+        writer.writerow(header)
+        if len(header)<4:
+            writer.writerows([[scn,ent,pas] for scn,ent,pas in zip(packed,annot,annotPass)])
+        else:
+            writer.writerows([[scn,ent]+pas for scn,ent,pas in zip(packed,annot,annotPass)])
+
+
+def packetDisplay(canvas,packetidx,packetSize,target,packed,annotPass,imgWidth,imgHeight,anchors):
+    '''
+    display a set of graphemes for a given packetidx
+    '''
+    img = []
+    idx = range(packetidx*packetSize,(packetidx+1)*packetSize)
+    for i,anchor in zip(idx,anchors):
+        path = os.path.join(os.getcwd(),target,packed[i])
+        img.append(ImageTk.PhotoImage(Image.open(path).resize((imgWidth,imgHeight))))
+        canvas.create_image(anchor,image=img[-1],anchor='nw')
+        annotPass[i] = '1'
+    return img,annotPass
+
+def updateAnnot(annot,row,col,packetidx,packetSize,rows):
+    '''
+    Update annotation for a given grapheme
+    '''
+    idx = range(packetidx*packetSize,(packetidx+1)*packetSize)
+    annot[idx+row+col*rows] = '0'
+    return annot
+
+
 packetidx = 0
 rows = 12
 cols = 15
@@ -30,28 +107,28 @@ packetSize = rows*cols
 root = tk.Tk()
 target = 'BUETEEE18A'
 #target = sys.argv[1]
-targetConf = target+'.conf.csv'
-extrList = os.listdir(target)
-numPack = math.ceil(len(extrList)/packetSize)
+targetConf = target+'.conf'
+packed = os.listdir(target)
+numPack = math.ceil(len(packed)/packetSize)
 
 ### if conf exists
 if os.path.isfile(targetConf):
-	with open(targetConf,'r', encoding='utf-8') as readFile:
+	with open(targetConf,'r', encoding='utf8') as readFile:
 		csvIn = csv.reader(readFile)
 		csvIn = list(csvIn)
 		header = csvIn[0]
-		extrList = [each[0] for each in csvIn[1:]]
-		entryList = [each[1] for each in csvIn[1:]]
-		passList = [each[2] for each in csvIn[1:]]
+		packed = [each[0] for each in csvIn[1:]]
+		annot = [each[1] for each in csvIn[1:]]
+		annotPass = [each[2] for each in csvIn[1:]]
 		if len(header)>3:
 		    metaList = [each[2:] for each in csvIn[1:]]
 		else:
 			metaList = []
 else:
 	header = ['filename','label','pass']
-	entryList = ['']*len(extrList)
-	passList = ['']*len(extrList)
-	confSave(targetConf,extrList,entryList,passList,header)
+	annot = ['1']*len(packed)
+	annotPass = ['0']*len(packed)
+	confSave(targetConf,packed,annot,annotPass,header)
 	metaList = []
 
 ### Batchname and packetidx container
@@ -71,25 +148,26 @@ gridHeight = math.ceil(winHeight*.8)
 gridWidth = math.ceil(winWidth*.8)
 imgWidth = math.floor(gridWidth/cols)
 imgHeight = math.floor(gridHeight/rows)
-anchors = [[(cl,rw) for cl in range(0,gridWidth,imgWidth)] for rw in range(0,gridHeight,imgHeight)]
+anchors = [(cl,rw) for cl in range(0,gridWidth,imgWidth) for rw in range(0,gridHeight,imgHeight)]
 c = tk.Canvas(root, width=gridWidth, height=gridHeight, borderwidth=0, background='white')
 c.pack()
 
+img,annotPass = packetDisplay(c,packetidx,packetSize,target,packed,annotPass,imgWidth,imgHeight,anchors)
 tiles = [[None for _ in range(cols)] for _ in range(rows)]
-path = 'M:/graphemePrepare/data/packed/BUETEEE18A/ং_BUETEEE18A_scan0048.png'
-img = ImageTk.PhotoImage(Image.open(path).resize((imgWidth,imgHeight)))
-def callback(event):
-    # Calculate column and row number
+
+def onClick(event):
     col = int(event.x//imgWidth)
     row = int(event.y//imgHeight)
     print(row,col)
-    # If the tile is not filled, create a rectangle
     if not tiles[row][col]:
-        tiles[row][col] = c.create_image(anchors[row][col][0],anchors[row][col][1],image=img, anchor='nw')
+        tiles[row][col] = c.create_oval(col*imgWidth, row*imgHeight, (col+1)*imgWidth, (row+1)*imgHeight,
+            stipple='gray50',width=2)
+        updateAnnot(annot,row,col,packetidx,packetSize,rows)
     # If the tile is filled, delete the rectangle and clear the reference
     else:
         c.delete(tiles[row][col])
         tiles[row][col] = None
+    print(annot)
 
-c.bind("<Button-1>", callback)
+c.bind("<Button-1>", onClick)
 root.mainloop()
