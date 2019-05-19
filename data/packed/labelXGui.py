@@ -57,6 +57,12 @@ class labelXGui(object):
                     self.metaList = [each[2:] for each in csvIn[1:]]
                 else:
                     self.metaList = []
+                ### set packetidx to latest annotated packet
+                try:
+                    index = self.annotPass.index('0')
+                    self.packetidx = index // self.packetSize - 1
+                except ValueError:
+                    self.packetidx = 0
         else:
             self.header = ['filename', 'label', 'pass']
             self.annot = ['1'] * len(self.packed)
@@ -75,8 +81,9 @@ class labelXGui(object):
                 writer.writerows([[scn, ent, pas] for scn, ent, pas in zip(self.packed,
                                                                            self.annot, self.annotPass)])
             else:
-                writer.writerows([[scn, ent] + pas for scn, ent, pas in zip(self.packed,
-                                                                            self.annot, self.annotPass)])
+                writer.writerows([[scn, ent, pas] + meta for scn, ent, pas, meta in zip(self.packed,
+                                                                            self.annot, self.annotPass,self.metaList)])
+        print(self.targetConf+' Saved')
 
     def frameInit(self):
         """
