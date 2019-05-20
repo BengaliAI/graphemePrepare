@@ -17,7 +17,7 @@ def renameSave(filename,scanList,entryList,metaList,header=['filename','ID']):
 ### Initialize counter list and roi in scan
 idx = 0
 root = tk.Tk()
-#target = 'BUETEEE18C'
+target = 'RIFLESSCH1'
 target = sys.argv[1]
 scanList = os.listdir(target)
 roi = (500,0,1900,500)

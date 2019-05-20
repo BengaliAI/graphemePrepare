@@ -1,6 +1,6 @@
 clear
 clc
-source = 'BUETEEE18A';
+source = 'RIFLESSCH1';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -11,9 +11,15 @@ groundTruth = '../data/groundTruth.txt';
 formIDs = 1:16;
 
 %% Get mask, bounding box and meta
-mask = imbinarize(rgb2gray(imread([refPath '/' 'maskThick.png'])));
+mask = imbinarize(rgb2gray(imread([refPath '/' 'mask.png'])));
 bw = bwareaopen(mask,800);
 s = regionprops(bw,'BoundingBox');
+width_s=s(1).BoundingBox(3);
+% Adding 20% of height and reducing yTop by 10% of height
+for i=1:length(s)
+    s(i).BoundingBox(2)=s(i).BoundingBox(2)-.1*s(i).BoundingBox(4);
+    s(i).BoundingBox(4)=s(i).BoundingBox(4)+.2*s(i).BoundingBox(4);
+end
 s = struct2cell(s);
 s= s';
 clear mask bw
@@ -79,6 +85,24 @@ for idx=1:length(files)
     
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
+        % We'll find long straight lines (of the range of 90% of width_s)
+        % And remove them
+        
+        newgrapheme=imbinarize(rgb2gray(grapheme),graythresh(rgb2gray(grapheme)));
+        imshow(newgrapheme);
+        %% Step 1 : Hough transform to find lines (needs optimization)
+        % Currently doesn't work at all, due to imbalance in line widths 
+        % Above and below
+        [H,T,R] = hough(newgrapheme,'Theta',0);
+        P  = houghpeaks(H,2,'threshold',ceil(0.3*max(H(:))));
+        lines = houghlines(newgrapheme,T,R,P,'FillGap',.02*width_s,'MinLength',.95*width_s);
+        
+        %% Step 2: We delete the lines
+        
+        for k = 1:length(lines)
+           xy = [lines(k).point1; lines(k).point2];
+           grapheme(min(xy(1,1),xy(2,1)):max(xy(1,1),xy(2,1)),min(xy(1,2),xy(2,2)):max(xy(1,2),xy(2,2)),:)=256;
+        end
         filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
         imwrite(grapheme,filename);
     end
