@@ -146,11 +146,15 @@ class labelXGui(object):
             answer = messagebox.askokcancel("Confirmation", "Confirm Transfer")
             if answer:
                 self.root.destroy()
-                self.confSave()
                 errorList = [each for i,each in enumerate(self.packed) if self.annot[i] == '0']
                 for each in errorList:
                     shutil.move(os.path.join(os.getcwd(),self.target,each),os.path.join(self.errorPath,each))
                 print("Transfer Complete")
+                ### update conf
+                self.packed = [each for i,each in enumerate(self.packed) if self.annot[i] == '1']
+                self.annotPass = [each for i, each in enumerate(self.annotPass) if self.annot[i] == '1']
+                self.annot = [each for i, each in enumerate(self.annot) if self.annot[i] == '1']
+                self.confSave()
 
     def nextPacket(self,event=None):
         self.packetidx += 1
