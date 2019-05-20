@@ -74,7 +74,9 @@ class labelXGui(object):
                     if index == 0:
                         self.packetidx = 0
                     else:
-                        self.packetidx = index // self.numPack - 1
+                        self.packetidx = index // self.packetSize - 1
+                        print(index)
+                        print(self.packetSize)
                 except ValueError:
                     self.packetidx = self.numPack - 1
         else:
