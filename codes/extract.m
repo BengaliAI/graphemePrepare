@@ -79,8 +79,13 @@ for idx=1:length(files)
     
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
-        filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
-        imwrite(grapheme,filename);
+        if ~BWblobThrash(grapheme)
+            filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
+            imwrite(grapheme,filename);
+        else
+            filename = [errorPath '/' source '_' char(split(1:end-1)) '.png'];
+            imwrite(grapheme,filename);
+        end
     end
 end
 
