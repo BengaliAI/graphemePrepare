@@ -8,3 +8,5 @@ data/packed/*
 !data/packed/placeholder.txt
 !data/packed/*.py
 .idea/*
+data/error/*.png
+data/error/*.jpg

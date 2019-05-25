@@ -1,8 +1,9 @@
 clear all
 close all
+clc
 
-source = 'RIFLESCLG2';
-pack = ['../data/packed' '/' source];
+source = 'RIFLESSCH5';
+pack = ['.../data/packed' '/' source];
 fileList = dir(pack);
 fileList = struct2cell(fileList);
 intAvg = [];
@@ -11,15 +12,16 @@ for i=3:length(fileList) % skip the first two ['.','..']
     im = im2double(rgb2gray(imread(target)));
     intAvg = [intAvg;sum(sum(im))/(size(im,1)*size(im,2))]; % Avg Intensity
 end
-%histogram(intAvg)
+histogram(intAvg)
 %% White Thresh
 close all
-thresh = .99;
+thresh = .984;
 idx = find(intAvg>thresh)+2; % idx 
 for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
     imshow(rgb2gray(imread(target)))
+%     delete(target)
     title(fileList{1,idx(i)})
 end
 %% Black Thresh
@@ -29,5 +31,6 @@ for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
     imshow(rgb2gray(imread(target)))
+%     delete(target)
     title(fileList{1,idx(i)})
 end
