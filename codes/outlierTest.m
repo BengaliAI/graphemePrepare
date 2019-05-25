@@ -15,7 +15,7 @@ end
 histogram(intAvg)
 %% White Thresh
 close all
-thresh = .984;
+thresh = .98;
 idx = find(intAvg>thresh)+2; % idx 
 for i=1:length(idx)
     figure();
