@@ -1,6 +1,6 @@
 clear
 clc
-source = 'BUETEEE18A';
+source = 'New';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -83,7 +83,7 @@ for idx=1:length(files)
             filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
             imwrite(grapheme,filename);
         else
-            filename = [errorPath '/' source '_' char(split(1:end-1)) '.png'];
+            filename = [errorPath '/' char(gt(i)) '_' source '_' char(split(1:end-1)) '.png'];
             imwrite(grapheme,filename);
         end
     end
