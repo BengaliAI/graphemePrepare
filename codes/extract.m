@@ -24,7 +24,7 @@ metaTable.formMeta = string(zeros(size(metaTable,1),1));
 %% Extract
 files = dir(sourcePath);
 for idx=1:length(files)
-    
+
     % JPG check
     split = (strsplit(files(idx).name,'.'));
     if ~strcmp(char(split(end)),'jpg')
@@ -36,14 +36,14 @@ for idx=1:length(files)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end
-    
+
     %% OCR detect formID
     roi = [2100 1 450 500];
     dilate = 5;
     ocrResults = ocrForm(im,roi,dilate,true); % display true
     formID = ocrResults.Words{1};
     formID = strip(formID)
-    
+
     %% if OCR error
     if isnan(str2double(formID))
         %         imwrite(im,[errorPath '/' files(idx).name])
@@ -53,18 +53,18 @@ for idx=1:length(files)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end
-    
+
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
     [rec,qual] = surfAlignGPU(imRef,im,true,true); % Nonrigid, disp
     %     imshowpair(imRef,rec);
-    
+
     %% Extract Metadata
     meta = metadataExtract(refPath,rec);
     row = find(metaTable.filename == files(idx).name);
     metaTable.formID(row) = str2double(formID);
     metaTable.formMeta(row) = strjoin(string(meta));
-    
+
     %% Load Ground Truths
     gt = utfRead(groundTruth);
     gt = string(gt{1});
@@ -72,14 +72,14 @@ for idx=1:length(files)
     gt = fliplr(gt');
     gt = reshape(gt, 9,9);
     gt = reshape(gt',81,1);
-    
-    
+
+
     %% Detect Blobs and Extract
     disp(['Extracting From ' files(idx).name])
-    
+
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
-        if ~BWblobThrash(grapheme)
+        if ~BWblobTrash(grapheme)
             filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
             imwrite(grapheme,filename);
         else
