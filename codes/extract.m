@@ -1,6 +1,6 @@
 clear
 clc
-source = 'New';
+source = 'IUB0';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -79,7 +79,7 @@ for idx=1:length(files)
 
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
-        if ~BWblobTrash(grapheme)
+        if ~isOutlierGrapheme(grapheme)
             filename = [targetPath '/' char(gt(i)) '/' source '_' char(split(1:end-1)) '.png'];
             imwrite(grapheme,filename);
         else
