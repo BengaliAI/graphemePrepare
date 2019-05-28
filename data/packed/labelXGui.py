@@ -194,7 +194,8 @@ class labelXGui(object):
                                                           (col + 1) * self.imgWidth,
                                                           (row + 1) * self.imgHeight,
                                                           stipple='gray50', width=2)
-            self.c.create_text(anchor,text=self.packed[i].split('_')[0], anchor='nw')
+            display_text = self.packed[i].split('_')[0]
+            self.c.create_text(anchor[0],anchor[1]+5,text=display_text, font=("Purisa", 11), anchor='nw')
             self.annotPass[i] = '1'
 
     def onClick(self,event):
