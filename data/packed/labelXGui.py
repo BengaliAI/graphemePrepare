@@ -44,7 +44,9 @@ class labelXGui(object):
 
         self.c = self.frameInit()
         self.showPacket(self.packetidx)
-        self.c.bind("<Button-1>", self.onClick)
+        self.c.bind("<Button-1>", self.onClickLeft)
+        self.c.bind("<Alt-Button-1>", self.onClickRight)
+        self.c.bind("<Button-3>", self.onClickRight)
         self.root.bind("<Alt-Right>", self.nextPacket)
         self.root.bind("<Alt-Left>", self.prevPacket)
         self.root.bind("<Control-Key-s>", self.confSave)
@@ -177,6 +179,8 @@ class labelXGui(object):
         Displays packet for current packetidx and updates annotPass
         """
         self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.hiddenTxt = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.hiddenTxtObject = [[None for _ in range(self.cols)] for _ in range(self.rows)]
         self.imgBuff = []
         idx = range(packetidx * self.packetSize, (packetidx + 1) * self.packetSize)
         for enum, each in enumerate(zip(idx, self.anchors)):
@@ -187,18 +191,32 @@ class labelXGui(object):
                 break
             self.imgBuff.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
             self.c.create_image(anchor, image=self.imgBuff[-1], anchor='nw')
+
+            col = enum // self.rows
+            row = enum % self.rows
+
             if self.annot[i] == '0':
-                col = enum // self.rows
-                row = enum % self.rows
                 self.tiles[row][col] = self.c.create_oval(col * self.imgWidth, row * self.imgHeight,
                                                           (col + 1) * self.imgWidth,
                                                           (row + 1) * self.imgHeight,
                                                           stipple='gray50', width=2)
             display_text = self.packed[i].split('_')[0]
+            self.hiddenTxt[row][col] = ''.join([each+'+' for each in display_text[:-1]]+[display_text[-1]])
             self.c.create_text(anchor[0],anchor[1]+5,text=display_text, font=("Purisa", 11), anchor='nw')
             self.annotPass[i] = '1'
 
-    def onClick(self,event):
+    def onClickRight(self,event):
+        col = int(event.x // self.imgWidth)
+        row = int(event.y // self.imgHeight)
+        # print(row, col)
+        if not self.hiddenTxtObject[row][col]:
+            self.hiddenTxtObject[row][col] = self.c.create_text(event.x,event.y,text=self.hiddenTxt[row][col],
+                                                                font=("Purisa", 11), anchor='nw')
+        else:
+            self.c.delete(self.hiddenTxtObject[row][col])
+            self.hiddenTxtObject[row][col] = None
+
+    def onClickLeft(self,event):
         col = int(event.x // self.imgWidth)
         row = int(event.y // self.imgHeight)
         # print(row, col)
