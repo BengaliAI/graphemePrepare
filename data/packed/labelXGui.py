@@ -163,6 +163,7 @@ class labelXGui(object):
         if self.packetidx > self.numPack-1:
             self.packetidx = self.numPack-1
         self.packet.set(str(self.packetidx) + '/' + str(self.numPack - 1))
+        self.bufferFlush()
         self.showPacket(self.packetidx)
         # self.confSave()
 
@@ -171,17 +172,41 @@ class labelXGui(object):
         if self.packetidx < 0:
             self.packetidx = 0
         self.packet.set(str(self.packetidx) + '/' + str(self.numPack - 1))
+        self.bufferFlush()
         self.showPacket(self.packetidx)
         # self.confSave()
+
+    def bufferFlush(self):
+        """
+        Flushes the Display Buffers
+        """
+        for rw in self.tiles:
+            for cl in rw:
+                self.c.delete(cl)
+        for rw in self.gtCheatBuff:
+            for cl in rw:
+                self.c.delete(cl)
+        for each in self.imgBuff:
+            self.c.delete(each)
+        for each in self.txtBuff:
+            self.c.delete(each)
+
+    def bufferInit(self):
+        """
+        Initializes the Display Buffers
+        """
+        self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.gtCheat = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.gtCheatBuff = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.PILbuffer = []
+        self.imgBuff = []
+        self.txtBuff = []
 
     def showPacket(self,packetidx):
         """
         Displays packet for current packetidx and updates annotPass
         """
-        self.tiles = [[None for _ in range(self.cols)] for _ in range(self.rows)]
-        self.hiddenTxt = [[None for _ in range(self.cols)] for _ in range(self.rows)]
-        self.hiddenTxtObject = [[None for _ in range(self.cols)] for _ in range(self.rows)]
-        self.imgBuff = []
+        self.bufferInit()
         idx = range(packetidx * self.packetSize, (packetidx + 1) * self.packetSize)
         for enum, each in enumerate(zip(idx, self.anchors)):
             i,anchor = each
@@ -189,8 +214,8 @@ class labelXGui(object):
                 path = os.path.join(os.getcwd(), self.target, self.packed[i])
             except IndexError:
                 break
-            self.imgBuff.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
-            self.c.create_image(anchor, image=self.imgBuff[-1], anchor='nw')
+            self.PILbuffer.append(ImageTk.PhotoImage(Image.open(path).resize((self.imgWidth, self.imgHeight))))
+            self.imgBuff.append(self.c.create_image(anchor, image=self.PILbuffer[-1], anchor='nw'))
 
             col = enum // self.rows
             row = enum % self.rows
@@ -201,20 +226,20 @@ class labelXGui(object):
                                                           (row + 1) * self.imgHeight,
                                                           stipple='gray50', width=2)
             display_text = self.packed[i].split('_')[0]
-            self.hiddenTxt[row][col] = ''.join([each+'+' for each in display_text[:-1]]+[display_text[-1]])
-            self.c.create_text(anchor[0],anchor[1]+5,text=display_text, font=("Purisa", 11), anchor='nw')
+            self.gtCheat[row][col] = ''.join([each+'+' for each in display_text[:-1]]+[display_text[-1]])
+            self.txtBuff.append(self.c.create_text(anchor[0],anchor[1]+5,text=display_text, font=("Purisa", 11), anchor='nw'))
             self.annotPass[i] = '1'
 
     def onClickRight(self,event):
         col = int(event.x // self.imgWidth)
         row = int(event.y // self.imgHeight)
         # print(row, col)
-        if not self.hiddenTxtObject[row][col]:
-            self.hiddenTxtObject[row][col] = self.c.create_text(event.x,event.y,text=self.hiddenTxt[row][col],
-                                                                font=("Purisa", 11), anchor='nw')
+        if not self.gtCheatBuff[row][col]:
+            self.gtCheatBuff[row][col] = self.c.create_text(event.x,event.y,text=self.gtCheat[row][col],
+                                                                font=("Purisa", 11), anchor='w')
         else:
-            self.c.delete(self.hiddenTxtObject[row][col])
-            self.hiddenTxtObject[row][col] = None
+            self.c.delete(self.gtCheatBuff[row][col])
+            self.gtCheatBuff[row][col] = None
 
     def onClickLeft(self,event):
         col = int(event.x // self.imgWidth)

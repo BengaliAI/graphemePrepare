@@ -1,6 +1,6 @@
 clear
 clc
-source = 'IUB0';
+source = 'IUB4';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
