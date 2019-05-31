@@ -250,16 +250,17 @@ class labelXGui(object):
                                                       (col + 1) * self.imgWidth,
                                                       (row + 1) * self.imgHeight,
                                                       stipple='gray50', width=2)
-            self.updateAnnot(row,col)
+            self.updateAnnot(row,col,'0')
         # If the tile is filled, delete the rectangle and clear the reference
         else:
             self.c.delete(self.tiles[row][col])
             self.tiles[row][col] = None
+            self.updateAnnot(row, col, '1')
 
-    def updateAnnot(self, row, col):
+    def updateAnnot(self, row, col, label='0'):
         idx = range(self.packetidx * self.packetSize, (self.packetidx + 1) * self.packetSize)
         try:
-            self.annot[idx[row + col * self.rows]] = '0'
+            self.annot[idx[row + col * self.rows]] = label
         except IndexError:
             print('No grapheme')
 

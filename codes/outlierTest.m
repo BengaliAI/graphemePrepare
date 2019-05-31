@@ -15,13 +15,17 @@ end
 histogram(intAvg)
 %% White Thresh
 close all
-thresh = .99;
-idx = find(intAvg>thresh)+2; % idx 
+thresh = .98;
+idx = find(intAvg>thresh)+2; % idx
 for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
-    imshow(rgb2gray(imread(target)))
-%     delete(target)
+    targetImg = imread(target);
+    imshow(targetImg)
+    if isOutlierGrapheme(targetImg)
+        disp(fileList{1,idx(i)})
+%         delete(target)
+    end
     title(fileList{1,idx(i)})
 end
 %% Black Thresh
@@ -31,6 +35,6 @@ for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
     imshow(rgb2gray(imread(target)))
-%     delete(target)
+%         delete(target)
     title(fileList{1,idx(i)})
 end
