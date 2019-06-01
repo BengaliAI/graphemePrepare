@@ -290,5 +290,5 @@ if __name__ == "__main__":
         print('ERROR: Please Specify Batchname Argument `python labelXGui.py BUETEEE18A`')
         exit()
     else:
-        app = labelXGui(target=sys.argv[1],rows=12, cols=15, fontsize=11, debug=False)
+        app = labelXGui(target=sys.argv[1],rows=15, cols=15, fontsize=11, debug=True)
         app()
