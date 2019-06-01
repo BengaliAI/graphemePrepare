@@ -19,18 +19,24 @@ except:
 
 
 class labelXGui(object):
-    def __init__(self, target, rows, cols, startidx=None):
+    def __init__(self, target, rows, cols, debug=False, fontsize=11, startidx=None):
         """
         creates Gui object for annotation
         :param target: target filename
         :param rows: number of rows to display
         :param cols: number of columns to display
+        :param debug: print debug options
+        :param fontsize: ground truth display fontsize
         :param startidx: starting packet
         """
         self.errorPath = os.path.join('..','error')
         self.rows = rows
         self.cols = cols
+        self.debug = debug
+        self.fontsize = fontsize
         self.packetSize = rows * cols
+        if self.debug:
+            print('Packet Size: ',self.packetSize)
         self.root = tk.Tk()
         self.target = target
         self.targetConf = target + '.conf'
@@ -108,6 +114,8 @@ class labelXGui(object):
         :returns: tkinter canvas object
         """
         global winHeight, winWidth
+        if self.debug:
+            print('Screen Resolution ',winWidth,winHeight)
         self.container = tk.LabelFrame(self.root, text='Bengali.AI Common Graphemes in Context')
         self.container.pack(fill="both", expand="yes")
         self.batchname = tk.StringVar()
@@ -132,10 +140,15 @@ class labelXGui(object):
         ### create grid
         self.gridHeight = math.ceil(winHeight * .8)
         self.gridWidth = math.ceil(winWidth * .8)
+        if self.debug:
+            print('Canvas Size',self.gridWidth,self.gridHeight)
         self.imgWidth = math.floor(self.gridWidth / self.cols)
         self.imgHeight = math.floor(self.gridHeight / self.rows)
         self.anchors = [(cl, rw) for cl in range(0, self.gridWidth, self.imgWidth)
-                        for rw in range(0, self.gridHeight, self.imgHeight)]
+                        for rw in range(0, self.gridHeight, self.imgHeight) if (rw+self.imgHeight/2<self.gridHeight and
+                                                                                cl+self.imgWidth/2<self.gridWidth)]
+        if self.debug:
+            print('Anchors ',self.anchors)
         c = tk.Canvas(self.root, width=self.gridWidth,
                            height=self.gridHeight, borderwidth=0, background='white')
         c.pack()
@@ -227,7 +240,9 @@ class labelXGui(object):
                                                           stipple='gray50', width=2)
             display_text = self.packed[i].split('_')[0]
             self.gtCheat[row][col] = ''.join([each+'+' for each in display_text[:-1]]+[display_text[-1]])
-            self.txtBuff.append(self.c.create_text(anchor[0],anchor[1]+5,text=display_text, font=("Purisa", 11), anchor='nw'))
+            self.txtBuff.append(self.c.create_text(anchor[0]+3,anchor[1]+5,
+                                                   text=display_text,
+                                                   font=("Purisa", self.fontsize), anchor='nw'))
             self.annotPass[i] = '1'
 
     def onClickRight(self,event):
@@ -236,7 +251,7 @@ class labelXGui(object):
         # print(row, col)
         if not self.gtCheatBuff[row][col]:
             self.gtCheatBuff[row][col] = self.c.create_text(event.x,event.y,text=self.gtCheat[row][col],
-                                                                font=("Purisa", 11), anchor='w')
+                                                                font=("Purisa", self.fontsize), anchor='w')
         else:
             self.c.delete(self.gtCheatBuff[row][col])
             self.gtCheatBuff[row][col] = None
@@ -244,7 +259,8 @@ class labelXGui(object):
     def onClickLeft(self,event):
         col = int(event.x // self.imgWidth)
         row = int(event.y // self.imgHeight)
-        # print(row, col)
+        if self.debug:
+            print('Row:',row,'Col',col)
         if not self.tiles[row][col]:
             self.tiles[row][col] = self.c.create_oval(col * self.imgWidth, row * self.imgHeight,
                                                       (col + 1) * self.imgWidth,
@@ -274,5 +290,5 @@ if __name__ == "__main__":
         print('ERROR: Please Specify Batchname Argument `python labelXGui.py BUETEEE18A`')
         exit()
     else:
-        app = labelXGui(target=sys.argv[1],rows=12,cols=15)
+        app = labelXGui(target=sys.argv[1],rows=12, cols=15, fontsize=11, debug=False)
         app()
