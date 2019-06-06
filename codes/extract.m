@@ -1,6 +1,6 @@
 clear
 clc
-source = 'IUB4';
+source = 'BUETEEE';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -21,10 +21,20 @@ clear mask bw
 metaTable = importMeta(metadataFile);
 metaTable.formID = zeros(size(metaTable,1),1);
 metaTable.formMeta = string(zeros(size(metaTable,1),1));
+% Log file
+logFile = fullfile(logPath, 'logHistory.txt');
+fid = fopen(logFile, 'rt+');
+if fid == -1
+    error('Cannot open file: %s', logFile);
+end
+C = textscan(fid,'%s');
+pilotIdx=str2double(C{1,1}(end))+1;
+fclose(fid);
+
 %% Extract
 files = dir(sourcePath);
-for idx=1:length(files)
-    
+for idx=pilotIdx:length(files)
+
     % JPG check
     split = (strsplit(files(idx).name,'.'));
     if ~strcmp(char(split(end)),'jpg')
@@ -36,29 +46,29 @@ for idx=1:length(files)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end
-    
+
     %% OCR detect formID
     roi = [2100 1 450 500];
     dilate = 5;
     formID = ocrForm(im,roi,dilate,true); % display true
-    
+
     %% if OCR error
     if ~ismember(str2double(formID),formIDs)
         imwrite(im,[errorPath '/' files(idx).name])
         continue;
     end
-    
+
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
     [rec,qual] = surfAlignGPU(imRef,im,true,true); % Nonrigid, disp
     %     imshowpair(imRef,rec);
-    
+
     %% Extract Metadata
     meta = metadataExtract(refPath,rec);
     row = find(metaTable.filename == files(idx).name);
     metaTable.formID(row) = str2double(formID);
     metaTable.formMeta(row) = strjoin(string(meta));
-    
+
     %% Load Ground Truths
     gt = utfRead(groundTruth);
     gt = string(gt{1});
@@ -66,11 +76,11 @@ for idx=1:length(files)
     gt = fliplr(gt');
     gt = reshape(gt, 9,9);
     gt = reshape(gt',81,1);
-    
-    
+
+
     %% Detect Blobs and Extract
     disp(['Extracting From ' files(idx).name])
-    
+
     for i=1:length(s)
         grapheme = imcrop(rec,s{i});
         if ~isOutlierGrapheme(grapheme)
@@ -81,6 +91,15 @@ for idx=1:length(files)
             imwrite(grapheme,filename);
         end
     end
+    %% Log History saving
+    fid = fopen(logFile, 'at+');
+    if fid == -1
+        error('Cannot open file: %s', logFile);
+    else
+        fprintf(fid, '%s  %s  %s\n',datetime,files(idx).name,string(idx));
+    end
+    fclose(fid);
+    disp(['Extracted From ' files(idx).name])
 end
 
 %% Save metaData
