@@ -4,6 +4,7 @@ clc
 
 source = 'RIFLESSCH5';
 pack = ['.../data/packed' '/' source];
+pack = 'M:\GraphemeDataset\graphemeCompile\compiled';
 fileList = dir(pack);
 fileList = struct2cell(fileList);
 intAvg = [];
@@ -22,10 +23,10 @@ for i=1:length(idx)
     target = [pack '/' fileList{1,idx(i)}];
     targetImg = imread(target);
     imshow(targetImg)
-    if isOutlierGrapheme(targetImg)
-        disp(fileList{1,idx(i)})
-%         delete(target)
-    end
+%     if isOutlierGrapheme(targetImg)
+%         disp(fileList{1,idx(i)})
+% %         delete(target)
+%     end
     title(fileList{1,idx(i)})
 end
 %% Black Thresh
