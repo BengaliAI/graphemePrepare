@@ -52,6 +52,7 @@ class labelXGui(object):
         self.showPacket(self.packetidx)
         self.c.bind("<Button-1>", self.onClickLeft)
         self.c.bind("<Alt-Button-1>", self.onClickRight)
+        self.c.bind("<Alt-Button-3>", self.altClickRight)
         self.c.bind("<Button-3>", self.onClickRight)
         self.root.bind("<Alt-Right>", self.nextPacket)
         self.root.bind("<Alt-Left>", self.prevPacket)
@@ -116,26 +117,26 @@ class labelXGui(object):
         global winHeight, winWidth
         if self.debug:
             print('Screen Resolution ',winWidth,winHeight)
-        self.container = tk.LabelFrame(self.root, text='Bengali.AI Common Graphemes in Context')
+        self.root.title('Bengali.AI Common Graphemes in Context')
+        self.root.iconbitmap(os.path.join('..','..','favicon.ico'))
+        self.container = tk.LabelFrame(self.root, font=("Roboto"), text='BATCHNAME: '+ self.target)
         self.container.pack(fill="both", expand="yes")
-        self.batchname = tk.StringVar()
-        self.label = tk.Label(self.container, textvariable=self.batchname)
-        self.label.pack(side='top')
-        self.batchname.set('BATCHNAME: ' + self.target)
+        self.label = tk.Label(self.container, font=("Roboto", 9), text='LMouse: Mark Grapheme Error;    RMouse: Split Groundtruth;    Alt+RMouse: Hide Groundtruth;    Alt+RArrow: Next Page;    Alt+LArrow: Prev Page;   Ctrl+S: Save;')
+        self.label.pack(side='left')
         self.packet = tk.StringVar()
-        self.packetDisp = tk.Label(self.container, textvariable=self.packet)
+        self.packetDisp = tk.Label(self.container, font=("Roboto"), textvariable=self.packet)
         self.packetDisp.pack(side='right')
         self.packet.set(str(self.packetidx) + '/' + str(self.numPack-1))
 
         ### add buttons
-        self.save = tk.Button(self.container, text="SAVE", command=self.confSave)
+        self.save = tk.Button(self.container, font=("Roboto"), text="SAVE", command=self.confSave)
         self.save.pack(side='right')
-        self.next = tk.Button(self.container, text="NEXT", command=self.nextPacket)
+        self.next = tk.Button(self.container, font=("Roboto"), text="NEXT", command=self.nextPacket)
         self.next.pack(side='right')
-        self.prev = tk.Button(self.container, text="PREV", command=self.prevPacket)
+        self.prev = tk.Button(self.container, font=("Roboto"), text="PREV", command=self.prevPacket)
         self.prev.pack(side='right')
-        self.transfer = tk.Button(self.container, text="TRANSFER LABEL ERRORS", command=self.transfer)
-        self.transfer.pack(side='left')
+        self.transfer = tk.Button(self.container, font=("Roboto"), text="TRANSFER LABEL ERRORS", command=self.transfer)
+        self.transfer.pack(side='right')
 
         ### create grid
         self.gridHeight = math.ceil(winHeight * .8)
@@ -255,6 +256,22 @@ class labelXGui(object):
         else:
             self.c.delete(self.gtCheatBuff[row][col])
             self.gtCheatBuff[row][col] = None
+	
+    def altClickRight(self,event):
+        col = int(event.x // self.imgWidth)
+        row = int(event.y // self.imgHeight)
+        
+        idx = range(self.packetidx * self.packetSize, (self.packetidx + 1) * self.packetSize)
+        buffIdx = row + col * self.rows
+        anchor = self.anchors[buffIdx]
+		
+        if not self.txtBuff[buffIdx]:
+            self.txtBuff[buffIdx] = self.c.create_text(anchor[0]+3,anchor[1]+5,
+                                                   text= self.packed[idx[row + col * self.rows]].split('_')[0],
+                                                   font=("Purisa", self.fontsize), anchor='nw')
+        else:
+            self.c.delete(self.txtBuff[buffIdx])
+            self.txtBuff[buffIdx] = None
 
     def onClickLeft(self,event):
         col = int(event.x // self.imgWidth)
