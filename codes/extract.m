@@ -101,6 +101,6 @@ for idx=1:length(files)
         logObj.logFilePrint(logtxtFile,false,'completed',false)
     end
 end
-
+fclose(fid);
 %% Save metaData
 writetable(metaTable,metadataFile);
