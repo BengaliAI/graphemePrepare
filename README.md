@@ -32,4 +32,6 @@
 
 - MATLAB Computer Vision Toolbox
 
+- Python 3.6.3 or higher
+
 - Pillow == 4.2.1
