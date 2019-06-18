@@ -5,14 +5,11 @@ import sys
 import csv
 
 ### Utility functions
-def renameSave(filename,scanList,entryList,metaList,header=['filename','ID']):
+def renameSave(filename,scanList,entryList,metaList,header=['filename','ID','formID','formMeta']):
 	with open(filename,'w') as writeFile:
 		writer = csv.writer(writeFile, lineterminator='\n')
 		writer.writerow(header)
-		if len(header)<3:
-			writer.writerows([[scn,ent] for scn,ent in zip(scanList,entryList)])
-		else:
-			writer.writerows([[scn,ent]+meta for scn,ent,meta in zip(scanList,entryList,metaList)])
+		writer.writerows([[scn,ent]+meta for scn,ent,meta in zip(scanList,entryList,metaList)])
 
 ### Initialize counter list and roi in scan
 idx = 0
@@ -35,13 +32,12 @@ if os.path.isfile(target+'.csv'):
 		else:
 			metaList = []
 else:
-	header = ['filename','ID']
 	entryList = ['']*len(scanList)
-	renameSave(target+'.csv',scanList,entryList,header)
-	metaList = []
+	metaList = [['0','0']]*len(scanList)
+	renameSave(target+'.csv',scanList,entryList,metaList)
 
 ### display filename and entry panel
-container = tk.LabelFrame(root, text='Bengali.AI Common Graphemes in Context')
+container = tk.LabelFrame(root, text='BATCHNAME: '+target)
 container.pack(fill="both", expand="yes")
 filename = tk.StringVar()
 label = tk.Label(container, textvariable=filename )
@@ -51,6 +47,8 @@ filename.set('Filename: '+scanList[idx])
 dispText = tk.StringVar()
 studentid = tk.Entry(container, text='Student ID/Roll', bd =5, width=50, textvariable=dispText)
 studentid.pack(side='right')
+hotkeys = tk.Label(container, text='\tAlt+RArrow: Next\t\tAlt+LArrow: Prev    ')
+hotkeys.pack(side='right')
 dispText.set(entryList[idx])
 
 ### display image of first scan
@@ -71,7 +69,7 @@ def rightKey(e):
 	panel.image = img
 	filename.set('Filename: '+scanList[idx])
 	dispText.set(entryList[idx])
-	renameSave(target+'.csv',scanList,entryList,metaList,header)
+	renameSave(target+'.csv',scanList,entryList,metaList)
 
 def leftKey(e):
     global idx
@@ -84,9 +82,11 @@ def leftKey(e):
     panel.image = img
     filename.set('Filename: '+scanList[idx])
     dispText.set(entryList[idx])
-    renameSave(target+'.csv',scanList,entryList,metaList,header)
+    renameSave(target+'.csv',scanList,entryList,metaList)
 
 ### Bind key to callbacks
+root.title('Bengali.AI Common Graphemes in Context')
+root.iconbitmap(os.path.join('..','..','favicon.ico'))
 root.bind('<Alt-Left>', leftKey)
 root.bind('<Alt-Right>', rightKey)
 root.bind('<Return>', rightKey)
