@@ -56,7 +56,7 @@ for idx=pilotIdx:length(files)
 
     %% Load Template and Align
     imRef = imread([refPath '/' 'form_' formID '.jpg']);
-    [rec,qual] = surfAlignGPU(imRef,im,false,true); % Nonrigid, disp
+    [rec,qual] = surfAlignGPU(imRef,im,true,true); % Nonrigid, disp
     %     imshowpair(imRef,rec);
 
     %% Extract Metadata
