@@ -7,6 +7,11 @@ classdef extractionLogger
     end
     
     methods
+        function obj = extractionLogger(source,logPath)   
+            obj.source = source;
+            obj.logPath = logPath;
+            obj.logtxtFile = [obj.logPath '/' obj.source '.log'];
+        end
         function pilotIdx = pilotIdxFinder(obj)
             logfiles = dir(obj.logPath);
             logicLevel = [];
@@ -28,11 +33,6 @@ classdef extractionLogger
                 pilotIdx = 3;
             end
             fclose(fid);
-        end
-        function obj = extractionLogger(source,logPath)   
-            obj.source = source;
-            obj.logPath = logPath;
-            obj.logtxtFile = [obj.logPath '/' obj.source '.log'];
         end
         function logFilePrint(obj,newLine,stringPrint,tabGap)
             fid = fopen(obj.logtxtFile, 'at+');   %open close in extract.m
