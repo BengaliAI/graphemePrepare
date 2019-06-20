@@ -3,8 +3,8 @@ close all
 clc
 
 source = 'RIFLESSCH5';
-pack = ['.../data/packed' '/' source];
-pack = 'M:\GraphemeDataset\graphemeCompile\compiled';
+pack = ['../data/packed' '/' source];
+pack = 'M:\GraphemeDataset\submission\RIFLESSCH1\RIFLESSCH1';
 fileList = dir(pack);
 fileList = struct2cell(fileList);
 intAvg = [];
@@ -14,21 +14,35 @@ for i=3:length(fileList) % skip the first two ['.','..']
     intAvg = [intAvg;sum(sum(im))/(size(im,1)*size(im,2))]; % Avg Intensity
 end
 histogram(intAvg)
-%% White Thresh
+%% Higher Tail
 close all
-thresh = .98;
+thresh = .97;
 idx = find(intAvg>thresh)+2; % idx
 for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
     targetImg = imread(target);
     imshow(targetImg)
-%     if isOutlierGrapheme(targetImg)
-%         disp(fileList{1,idx(i)})
-% %         delete(target)
-%     end
+    if isOutlierGrapheme(targetImg)
+        disp(fileList{1,idx(i)})
+%         delete(target)
+    end
     title(fileList{1,idx(i)})
 end
+%% Lower Tail
+close all
+thresh = .89;
+idx = find(intAvg<thresh)+2; % idx
+for i=1:length(idx)
+    figure();
+    target = [pack '\' fileList{1,idx(i)}];
+    targetImg = imread(target);
+    imshow(targetImg)
+    disp(fileList{1,idx(i)})
+%     delete(target)
+    title(fileList{1,idx(i)})
+end
+
 %% Black Thresh
 close all
 idx = find(isoutlier(intAvg,'gesd'))+2;
@@ -36,6 +50,6 @@ for i=1:length(idx)
     figure();
     target = [pack '/' fileList{1,idx(i)}];
     imshow(rgb2gray(imread(target)))
-%         delete(target)
+    %         delete(target)
     title(fileList{1,idx(i)})
 end

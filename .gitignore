@@ -10,4 +10,3 @@ data/packed/*
 .idea/*
 data/error/*.png
 data/error/*.jpg
-codes/fileTest.m
