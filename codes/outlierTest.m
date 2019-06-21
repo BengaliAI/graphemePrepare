@@ -4,7 +4,7 @@ clc
 
 source = 'RIFLESSCH5';
 pack = ['../data/packed' '/' source];
-pack = 'M:\GraphemeDataset\submission\RIFLESSCH1\RIFLESSCH1';
+pack = 'M:\GraphemeDataset\submission2\IUB2\IUB2';
 fileList = dir(pack);
 fileList = struct2cell(fileList);
 intAvg = [];
@@ -16,7 +16,7 @@ end
 histogram(intAvg)
 %% Higher Tail
 close all
-thresh = .97;
+thresh = .98;
 idx = find(intAvg>thresh)+2; % idx
 for i=1:length(idx)
     figure();

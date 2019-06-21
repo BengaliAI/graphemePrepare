@@ -1,6 +1,6 @@
 clear
 clc
-source = 'BUETEEE';
+source = 'IUB2';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -19,8 +19,7 @@ s= s';
 clear mask bw
 %
 metaTable = importMeta(metadataFile);
-metaTable.formID = zeros(size(metaTable,1),1);
-metaTable.formMeta = string(zeros(size(metaTable,1),1));
+
 % log file
 logObj = extractionLogger(source, logPath);
 logObj.logFilePrint(true,'Starting.....',false)
