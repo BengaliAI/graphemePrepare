@@ -1,6 +1,6 @@
 clear
 clc
-source = 'IUB2';
+source = 'BRAC4';
 sourcePath = ['../data/scanned' '/' source];
 metadataFile = [sourcePath '.csv'];
 targetPath = '../data/extracted';
@@ -35,6 +35,7 @@ for idx=pilotIdx:length(files)
     end
     % empty check
     logObj.logFilePrint(true,files(idx).name,true)
+    logObj.logFilePrint(false,datetime,true)
     im = imread([sourcePath '/' files(idx).name]);
     if sum(sum(~imbinarize(rgb2gray(im))))<400000
         imwrite(im,[errorPath '/' files(idx).name])
