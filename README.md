@@ -35,3 +35,7 @@
 - Python 3.6.3 or higher
 
 - Pillow == 4.2.1
+
+#### Documentation
+- Kaggle competition page [www.kaggle.com/c/bengaliai-cv19](www.kaggle.com/c/bengaliai-cv19)
+- Dataset introduction [COCO-Grapheme](https://bengali.ai/wp-content/uploads/CV19-COCO-Grapheme.pdf)
