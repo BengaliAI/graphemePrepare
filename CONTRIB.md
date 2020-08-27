@@ -56,14 +56,16 @@ Nayeeb Rashid
 Mumtahina Islam Sukanya  
 Sa'diah Ahmed Moon  
 Nusrat Hasan Azmi
-    
-#### IUB Collabs
+
+#### Collaborations
+
+##### IUB 
 Independent University, Bangladesh  
 Mahady Hasan, PhD  
 Md. Asif Bin Khaled  
 [Fab Lab, IUB](https://fablabiub.com/)  
 
-#### BUET Collabs
+##### BUET
 [mHealth Lab, Dept of BME, BUET](https://mhealth.buet.ac.bd/)  
 [Satyen Bose Science Club BUET](https://www.linkedin.com/company/satyen-bose-science-club-buet)  
 
@@ -76,9 +78,11 @@ Eden Girls School And College
 Birshreshtha Munshi Abdur Rouf Public College  
 University of Dhaka  
 
-#### Supports
+#### Supported by
+
 [Apurba Technologies Ltd.](https://apurba.com.bd/index.html)  
 [Intelligent Machines Limited](https://retail.ai/)    
+[Kaggle](https://www.kaggle.com)
 
 
 
