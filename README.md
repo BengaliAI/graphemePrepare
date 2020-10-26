@@ -1,4 +1,7 @@
-# Bengali.AI Computer Vision Challenge 2019
+# Bengali.AI Computer Vision Challenge: Handwritten Bengali Grapheme Classification
+
+This repo contains code to extend/replicate the dataset present in the Kaggle [Bengali.AI Handwritten Grapheme Classification](www.kaggle.com/c/bengaliai-cv19). For the dataset, codes, discussions and leaderboards, visit the Kaggle competition page. The paper describing the dataset, protocols and future directions can be found [here](https://arxiv.org/abs/2010.00170).
+
 ## Common Handwritten Graphemes in Context
 #### Project Structure
 
